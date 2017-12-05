@@ -6,7 +6,8 @@
 class NeuralNetwork
 {
 public:
-    NeuralNetwork(int n);
+    NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s);
+    void generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s);
     void fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate);
     double predict(std::vector<double>& xi);
 

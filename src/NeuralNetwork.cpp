@@ -5,11 +5,23 @@
 #include <stdlib.h>
 #include <time.h>
 
-NeuralNetwork::NeuralNetwork(int n) {
+NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
     srand(time(NULL));
+    generateData(x, d, s);
+    int n = 1;
     for (int i = 0; i<n; i++) {
         m_weights.push_back(((double)rand() / (double)RAND_MAX) * 1.0);
-        std::cout << m_weights[i] << std::endl;
+        //std::cout << m_weights[i] << std::endl;
+    }
+}
+
+void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
+    for (int i = 0; i<s; i++) {
+        std::vector<double> xi;
+        double input = ((double)rand() / (double)RAND_MAX * 20) - 10;
+        xi.push_back(input);
+        d.push_back(3 * input + 4);
+        x.push_back(xi);
     }
 }
 
