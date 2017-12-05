@@ -4,6 +4,9 @@ project(HPC_GPU)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall")
 
-add_subdirectory(src)
+set(SOURCES
+        src/Matrix.cpp
+        src/NeuralNetwork.cpp
+        )
 
-add_executable(philips src/main.cpp)
+add_executable(neuralnet src/main.cpp ${SOURCES})
