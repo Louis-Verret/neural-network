@@ -6,13 +6,14 @@
 class NeuralNetwork
 {
 public:
-    void fit(std::vector<double>& x, double y);
+    NeuralNetwork(int n);
+    void fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate);
+    double predict(std::vector<double>& x);
 
 protected:
     std::vector<double> m_weights;
-
-    std::vector<double>& propagate(const std::vector<double>& x) const;
-    void backpropagate(const std::vector<double>& x, const double y, const double d) const;
+    double propagate(const std::vector<double>& x) const;
+    void backpropagate(const std::vector<double>& x, const double y, const double d, const double learning_rate);
 };
 
 #endif

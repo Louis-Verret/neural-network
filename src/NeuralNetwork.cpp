@@ -1,24 +1,52 @@
 #include "NeuralNetwork.h"
+#include "math.h"
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-
-void fit(std::vector<double>& x, double d) {
-
-    double y = propagate(x);
-    backpropagate(x, y, d);
-
-}
-
-
-std::vector<double>& NeuralNetwork::propagate(const std::vector<double>& x) const {
-
-}
-
-
-void NeuralNetwork::backpropagate(const std::vector<double>& x, const double y, const double d) {
-
-    n = m_weights.size();
+NeuralNetwork::NeuralNetwork(int n) {
+    srand(time(NULL));
     for (int i = 0; i<n; i++) {
-        m_weights[i] += (d - y) * x[i];
+        m_weights.push_back(((double)rand() / (double)RAND_MAX) * 1.0);
+        std::cout << m_weights[i] << std::endl;
+    }
+}
+
+void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate) {
+    int s = x.size();
+    for (int i = 0; i<epoch; i++) {
+        double error = 0;
+        double y;
+        for (int j = 0; j<s; j++) {
+            y = propagate(x[j]);
+            backpropagate(x[j], y, d[j], learning_rate);
+            error += (d[j] - y) * (d[j] - y);
+        }
+        std::cout << "Error: " << error << std::endl;
+    }
+
+}
+
+double NeuralNetwork::predict(std::vector<double>& x) {
+    return propagate(x);
+}
+
+double NeuralNetwork::propagate(const std::vector<double>& x) const {
+    double y = 0;
+    int m = x.size();
+    for (int j = 0; j < m; j++) {
+        y += m_weights[j] * x[j];
+    }
+    //return 1.0 / (1.0 + exp(-y));
+    return y;
+}
+
+void NeuralNetwork::backpropagate(const std::vector<double>& x, const double y, const double d, const double learning_rate) {
+
+    int n = m_weights.size();
+    for (int i = 0; i<n; i++) {
+        m_weights[i] += learning_rate * (d - y) * x[i];
     }
 
 }
