@@ -15,8 +15,10 @@ public:
 protected:
     std::vector<std::vector<double> > m_layers;
     int m_hidden_layers;
+    std::vector<double> o;
 
-    double propagate(const std::vector<double>& xi) const;
+    double activation(const double x) const;
+    double propagate(const std::vector<double>& xi);
     void backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate);
 };
 
