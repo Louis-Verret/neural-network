@@ -28,25 +28,25 @@ void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<double
 
 }
 
-double NeuralNetwork::predict(std::vector<double>& x) {
-    return propagate(x);
+double NeuralNetwork::predict(std::vector<double>& xi) {
+    return propagate(xi);
 }
 
-double NeuralNetwork::propagate(const std::vector<double>& x) const {
+double NeuralNetwork::propagate(const std::vector<double>& xi) const {
     double y = 0;
-    int m = x.size();
-    for (int j = 0; j < m; j++) {
-        y += m_weights[j] * x[j];
+    int n = xi.size();
+    for (int j = 0; j < n; j++) {
+        y += m_weights[j] * xi[j];
     }
     //return 1.0 / (1.0 + exp(-y));
     return y;
 }
 
-void NeuralNetwork::backpropagate(const std::vector<double>& x, const double y, const double d, const double learning_rate) {
+void NeuralNetwork::backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate) {
 
     int n = m_weights.size();
     for (int i = 0; i<n; i++) {
-        m_weights[i] += learning_rate * (d - y) * x[i];
+        m_weights[i] += learning_rate * (di - y) * xi[i];
     }
 
 }
