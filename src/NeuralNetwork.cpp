@@ -5,14 +5,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
+NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) : m_hidden_layers(-1) {
     srand(time(NULL));
     generateData(x, d, s);
-    int n = 1;
-    for (int i = 0; i<n; i++) {
-        m_weights.push_back(((double)rand() / (double)RAND_MAX) * 1.0);
-        //std::cout << m_weights[i] << std::endl;
-    }
+    addLayer(1);
 }
 
 void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
@@ -44,21 +40,39 @@ double NeuralNetwork::predict(std::vector<double>& xi) {
     return propagate(xi);
 }
 
-double NeuralNetwork::propagate(const std::vector<double>& xi) const {
-    double y = 0;
-    int n = xi.size();
-    for (int j = 0; j < n; j++) {
-        y += m_weights[j] * xi[j];
+void NeuralNetwork::addLayer(int size) {
+    m_hidden_layers++;
+    std::vector<double> layer;
+    srand(time(NULL));
+    for (int i = 0; i < size; i++) {
+        layer.push_back(((double)rand() / (double)RAND_MAX));
     }
-    //return 1.0 / (1.0 + exp(-y));
-    return y;
+    m_layers.push_back(layer);
+}
+
+double NeuralNetwork::propagate(const std::vector<double>& xi) const {
+    int n = xi.size();
+    int n_layer = m_layers[1].size();
+    std::vector<double> y;
+    for (int j = 0; j < n_layer; j++) {
+        double y1j = 0;
+        for (int k = 0; k < n; k++) {
+            y1j += m_layers[0][k] * xi[k];
+        }
+        y.push_back(y1j);
+    }
+    double ys = 0;
+    for (int k = 0; k < n_layer; k++) {
+        ys += m_layers[1][k] * y[k];
+    }
+    return ys;
 }
 
 void NeuralNetwork::backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate) {
 
-    int n = m_weights.size();
+    int n = m_layers[0].size();
     for (int i = 0; i<n; i++) {
-        m_weights[i] += learning_rate * (di - y) * xi[i];
+        m_layers[0][i] += learning_rate * (di - y) * xi[i];
     }
 
 }

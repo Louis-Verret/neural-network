@@ -10,9 +10,12 @@ public:
     void generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s);
     void fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate);
     double predict(std::vector<double>& xi);
+    void addLayer(int size);
 
 protected:
-    std::vector<double> m_weights;
+    std::vector<std::vector<double> > m_layers;
+    int m_hidden_layers;
+
     double propagate(const std::vector<double>& xi) const;
     void backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate);
 };
