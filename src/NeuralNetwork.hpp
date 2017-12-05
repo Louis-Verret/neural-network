@@ -1,6 +1,8 @@
 #ifndef NEURAL_NETWORK
 #define NEURAL_NETWORK
 
+#include <vector>
+
 class NeuralNetwork
 {
 public:
