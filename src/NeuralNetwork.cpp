@@ -1,6 +1,6 @@
-#include "NeuralNetwork.hpp"
+#include "NeuralNetwork.h"
 
 
-std::vector<double>& propagate(const std::vector<double>& x) const {
-    
+std::vector<double>& NeuralNetwork::propagate(const std::vector<double>& x) const {
+
 }

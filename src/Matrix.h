@@ -9,9 +9,9 @@ public:
     Matrix();
     Matrix(int n, int m, std::vector<double> coefficients);
     ~Matrix();
-    int getN() const {return m_n};
-    int getM() const {return m_m};
-    
+    int getN() const {return m_n;};
+    int getM() const {return m_m;};
+
     double& operator () (int i, int j);
 
 protected:
