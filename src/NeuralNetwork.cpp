@@ -1,13 +1,20 @@
 #include "NeuralNetwork.h"
+#include "math.h"
 
 
-void NeuralNetwork::propagate(const std::vector<double>& x, std::vector<double>& y) const {
-
-    std::vector<double> w = m_weights_list[0];
-    std::vector<double> y =
-    int n = w.size();
-    for (int i = 0; i < n; i++) {
-
+double NeuralNetwork::propagate(const std::vector<double>& x) const {
+    double y = 0;
+    int m = x.size();
+    for (int j = 0; j < m; j++) {
+        y += m_weights[j] * x[j];
     }
+    return 1 / (1 + exp(-y));
+}
+
+
+void NeuralNetwork::backpropagate(const std::vector<double>& y) const {
+
+
+
 
 }
