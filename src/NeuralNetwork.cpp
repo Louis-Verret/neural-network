@@ -7,17 +7,31 @@
 
 NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) : m_hidden_layers(-1) {
     generateData(x, d, s);
-    addLayer(4);
+    addLayer(10);
 }
 
 void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
     srand(time(NULL));
+    double max_input = -10;
+    double min_input = 10;
+    double max_d = -1;
+    double min_d = 1;
     for (int i = 0; i<s; i++) {
         std::vector<double> xi;
         double input = ((double)rand() / (double)RAND_MAX) * 6.28 - 3.14;
+        max_input = std::max(max_input, input);
+        min_input = std::min(min_input, input);
+        max_d = std::max(max_d, sin(input));
+        min_d = std::min(min_d, sin(input));
         xi.push_back(input);
-        d.push_back(fabs(sin(input)));
+        d.push_back(sin(input));
         x.push_back(xi);
+    }
+    for (int i = 0; i<s; i++) {
+        x[i][0] = (x[i][0] - min_input) / (max_input - min_input);
+        d[i] = (d[i] - min_d) / (max_d - min_d);
+        //std::cout << "d: " << d[i] << std::endl;
+        //std::cout << "x: " << x[i][0] << std::endl;
     }
 }
 
@@ -48,7 +62,6 @@ double NeuralNetwork::predict(std::vector<double>& xi) {
 void NeuralNetwork::addLayer(int size) {
     m_hidden_layers++;
     srand(time(NULL));
-
     for (int k = 0; k<2; k++) {
         std::vector<double> layer;
         for (int i = 0; i < size; i++) {
