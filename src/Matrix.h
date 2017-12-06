@@ -17,6 +17,7 @@ public:
     const double &operator()(int i, int j) const;
 
     std::vector<double> operator*(const std::vector<double> &vec) const;
+    Matrix transpose() const;
 
 protected:
     const int m_n;
