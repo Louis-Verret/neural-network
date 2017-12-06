@@ -45,6 +45,14 @@ std::vector<double> Matrix::operator*(const std::vector<double> &vec) const {
     return vec_s;
 }
 
+Matrix Matrix::transpose() const{ //non cache aware + matrice initialisée à des valeurs randoms à changer
+    Matrix transpose(m_m, m_n);
+    for (int i = 0; i<m_m; i++) {
+        for (int j =0; j<m_n; j++) {
+            transpose(i, j) = m_coefficients[j * m_m + i];
+        }
+    }
+}
 
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
