@@ -4,6 +4,13 @@
 #include <cstdlib>
 #include <time.h>
 
+
+Matrix::Matrix() : m_m(0), m_n(0) {
+}
+
+Matrix::~Matrix() {
+}
+
 Matrix::Matrix(int input_dim, int output_dim) :
         m_n(input_dim),
         m_m(output_dim) {
@@ -14,8 +21,6 @@ Matrix::Matrix(int input_dim, int output_dim) :
     }
 }
 
-Matrix::~Matrix() {
-}
 
 const double &Matrix::operator()(int i, int j) const {
     if (i < m_n && j < m_m)
@@ -43,6 +48,7 @@ std::vector<double> Matrix::operator*(const std::vector<double> &vec) const {
     }
     return vec_s;
 }
+
 
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
