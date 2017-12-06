@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <time.h>
 
+Matrix::Matrix() {
+
+}
+
+Matrix::~Matrix() {
+
+}
+
 Matrix::Matrix(int input_dim, int output_dim) :
 m_n(input_dim),
 m_m(output_dim)

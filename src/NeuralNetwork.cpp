@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) : m_hidden_layers(-1) {
+NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
     generateData(x, d, s);
-    addLayer(4);
 }
 
 void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
@@ -45,51 +44,56 @@ double NeuralNetwork::predict(std::vector<double>& xi) {
     return propagate(xi);
 }
 
-void NeuralNetwork::addLayer(int size) {
-    m_hidden_layers++;
-    srand(time(NULL));
-
-    for (int k = 0; k<2; k++) {
-        std::vector<double> layer;
-        for (int i = 0; i < size; i++) {
-            layer.push_back(((double)rand() / (double)RAND_MAX));
-        }
+void NeuralNetwork::addLayer(int neurons_number, int input_dim = 0) {
+    if (input_dim != 0) { // for the first input layer
+        Layer layer(input_dim, neurons_number);
+        m_layers.push_back(layer);
+    }
+    else { // for stacked layer the input dim is the number of neurons in the previous layer
+        input_dim = m_layers.back().getNeuronsNumber();
+        Layer layer(input_dim, neurons_number);
         m_layers.push_back(layer);
     }
 }
 
-double NeuralNetwork::propagate(const std::vector<double>& xi) {
-    int n = xi.size();
-    int n_layer = m_layers[1].size();
-    for (int j = 0; j < n_layer; j++) {
-        double y1j = 0;
-        for (int k = 0; k < n; k++) {
-            y1j += m_layers[0][k] * xi[k];
-        }
-        o.push_back(activation(y1j));
+double NeuralNetwork::propagate(const std::vector<double>& input) {
+    std::vector<double> x = input;
+    std::vector<double> y;
+    for (std::vector<Layer>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
+        y = it->propagate(x);
+        x = y;
     }
-    double ys = 0;
-    for (int k = 0; k < n_layer; k++) {
-        ys += m_layers[1][k] * o[k];
-    }
-    return activation(ys);
+    return y[0];
+    // int n_layer = m_layers[1].size();
+    // for (int j = 0; j < n_layer; j++) {
+    //     double y1j = 0;
+    //     for (int k = 0; k < n; k++) {
+    //         y1j += m_layers[0][k] * xi[k];
+    //     }
+    //     o.push_back(activation(y1j));
+    // }
+    // double ys = 0;
+    // for (int k = 0; k < n_layer; k++) {
+    //     ys += m_layers[1][k] * o[k];
+    // }
+    // return activation(ys);
 }
 
 void NeuralNetwork::backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate) {
 
-    int n_layer = m_layers[1].size();
-    double delta2 = (y - di) * y * (1 - y);
-    std::vector<double> weights;
-
-    for (int i = 0; i<n_layer; i++) {
-        weights.push_back(m_layers[1][i]);
-        m_layers[1][i] -= learning_rate * o[i] * delta2;
-    }
-
-    double delta1;
-    for (int i = 0; i < n_layer; i++) {
-        delta1 = delta2 * weights[i] * o[i] * (1 - o[i]);
-        m_layers[0][i] -= learning_rate * xi[0] * delta1;
-    }
+    // int n_layer = m_layers[1].size();
+    // double delta2 = (y - di) * y * (1 - y);
+    // std::vector<double> weights;
+    //
+    // for (int i = 0; i<n_layer; i++) {
+    //     weights.push_back(m_layers[1][i]);
+    //     m_layers[1][i] -= learning_rate * o[i] * delta2;
+    // }
+    //
+    // double delta1;
+    // for (int i = 0; i < n_layer; i++) {
+    //     delta1 = delta2 * weights[i] * o[i] * (1 - o[i]);
+    //     m_layers[0][i] -= learning_rate * xi[0] * delta1;
+    // }
 
 }
