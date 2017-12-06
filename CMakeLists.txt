@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall")
 
 set(SOURCES
         src/Matrix.cpp
+        src/Layer.cpp
         src/NeuralNetwork.cpp
         )
 
