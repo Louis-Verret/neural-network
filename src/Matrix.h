@@ -7,6 +7,7 @@
 
 class Matrix {
 public:
+    Matrix();
     Matrix(int n, int m);
     ~Matrix();
 

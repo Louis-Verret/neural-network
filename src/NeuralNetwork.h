@@ -12,7 +12,7 @@ public:
     void generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s);
     void fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate);
     double predict(std::vector<double>& xi);
-    void addLayer(int neurons_number, std::string function_name, int input_dim);
+    void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
 
 protected:
     std::vector<Layer> m_layers;
