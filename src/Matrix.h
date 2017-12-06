@@ -7,11 +7,12 @@ class Matrix
 {
 public:
     Matrix();
-    Matrix(int n, int m, std::vector<double> coefficients);
+    Matrix(int n, int m);
     ~Matrix();
     int getN() const {return m_n;};
     int getM() const {return m_m;};
 
+    std::vector<double> operator * (const std::vector<double>& vec) const;
     double& operator () (int i, int j);
 
 protected:

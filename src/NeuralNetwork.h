@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "Layer.h"
+
 class NeuralNetwork
 {
 public:
@@ -10,11 +12,11 @@ public:
     void generateData(std::vector<std::vector<double> >& x, std::vector<double>& d, int s);
     void fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate);
     double predict(std::vector<double>& xi);
-    void addLayer(int size);
+    void addLayer(int neurons_number, std::string function_name, int input_dim);
 
 protected:
-    std::vector<std::vector<double> > m_layers;
-    int m_hidden_layers;
+    std::vector<Layer> m_layers;
+    int input_dim;
     std::vector<double> o;
 
     double activation(const double x) const;
