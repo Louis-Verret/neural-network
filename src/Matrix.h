@@ -2,24 +2,29 @@
 #define MATRIX
 
 #include <vector>
+#include <stdlib.h>
+#include <ostream>
 
-class Matrix
-{
+class Matrix {
 public:
-    Matrix();
     Matrix(int n, int m);
     ~Matrix();
-    int getN() const {return m_n;};
-    int getM() const {return m_m;};
 
-    std::vector<double> operator * (const std::vector<double>& vec) const;
-    double& operator () (int i, int j);
+    int getN() const { return m_n; };
+    int getM() const { return m_m; };
+    double &operator()(int i, int j);
+    const double &operator()(int i, int j) const;
+
+    std::vector<double> operator*(const std::vector<double> &vec) const;
 
 protected:
-    int m_n;
-    int m_m;
+    const int m_n;
+    const int m_m;
     std::vector<double> m_coefficients;
 
 };
+
+// afficher une matrice
+std::ostream& operator << (std::ostream& out, const Matrix& m);
 
 #endif
