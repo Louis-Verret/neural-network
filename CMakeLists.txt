@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall")
 set(SOURCES
         src/Matrix.cpp
         src/NeuralNetwork.cpp
+        src/ActivationFunction.cpp
         )
 
 add_executable(neuralnet src/main.cpp ${SOURCES})
