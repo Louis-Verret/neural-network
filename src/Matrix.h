@@ -2,7 +2,7 @@
 #define MATRIX
 
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 #include <ostream>
 
 class Matrix {

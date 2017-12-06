@@ -1,9 +1,5 @@
 #include "Matrix.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <time.h>
-
 
 Matrix::Matrix() : m_m(0), m_n(0) {
 }
@@ -20,7 +16,6 @@ Matrix::Matrix(int input_dim, int output_dim) :
         m_coefficients.push_back(((double) rand() / (double) RAND_MAX));
     }
 }
-
 
 const double &Matrix::operator()(int i, int j) const {
     if (i < m_n && j < m_m)
