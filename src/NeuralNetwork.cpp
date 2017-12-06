@@ -1,9 +1,7 @@
 #include "NeuralNetwork.h"
-#include "math.h"
+#include <cmath>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+
 
 NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<double>& d, int s) {
     generateData(x, d, s);
