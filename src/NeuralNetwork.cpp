@@ -34,17 +34,18 @@ void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vect
 
 void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<double>& d, int epoch, const double learning_rate) {
     int s = x.size();
-    for (int i = 0; i<epoch; i++) {
-        double error = 0;
+    //for (int i = 0; i<epoch; i++) {
+        // double error = 0;
         double y;
-        for (int j = 0; j<s; j++) {
-            y = propagate(x[j]);
+        // for (int j = 0; j<s; j++) {
+            y = propagate(x[0]);
             //backpropagate(x[j], y, d[j], learning_rate);
-            std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
-            error += (d[j] - y) * (d[j] - y);
-        }
+            //std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
+            std::cout << "Predicted/Label: " << y << " " << d[0] << std::endl;
+            //error += (d[j] - y) * (d[j] - y);
+        //}
         //std::cout << "Error: " << error << std::endl;
-    }
+    //}
 
 }
 
@@ -58,10 +59,12 @@ double NeuralNetwork::predict(std::vector<double>& xi) {
 
 void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int input_dim) {
     if (input_dim != 0) { // for the first input layer
+        //std::cout << "Creating first layer" << std::endl;
         Layer layer(input_dim, neurons_number, function_name);
         m_layers.push_back(layer);
     }
     else { // for stacked layer the input dim is the number of neurons in the previous layer
+        //std::cout << "Adding layer" << std::endl;
         input_dim = m_layers.back().getNeuronsNumber();
         Layer layer(input_dim, neurons_number, function_name);
         m_layers.push_back(layer);
@@ -72,6 +75,8 @@ double NeuralNetwork::propagate(const std::vector<double>& input) {
     std::vector<double> x = input;
     std::vector<double> y;
     for (std::vector<Layer>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
+        // std::cout << it->getNeuronsNumber() << std::endl;
+        // std::cout << it->getInputDim() << std::endl;
         y = it->computeOutput(x);
         x = y;
     }
@@ -108,4 +113,13 @@ void NeuralNetwork::backpropagate(const std::vector<double>& xi, const double y,
     //     m_layers[0][i] -= learning_rate * xi[0] * delta1;
     // }
 
+}
+
+std::ostream& operator << (std::ostream& out, const NeuralNetwork& net) {
+    std::vector<Layer> layers = net.getLayers();
+    for (std::vector<Layer>::iterator it = layers.begin(); it != layers.end(); ++it) {
+        out << *it;
+        out << "----------------------------------------------------" << std::endl;
+    }
+    return out;
 }

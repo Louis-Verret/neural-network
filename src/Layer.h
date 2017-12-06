@@ -26,4 +26,6 @@ protected:
     std::vector<double> m_bias;
 };
 
+std::ostream& operator << (std::ostream& out, const Layer& layer);
+
 #endif

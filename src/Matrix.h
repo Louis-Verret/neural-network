@@ -25,7 +25,6 @@ protected:
 
 };
 
-// afficher une matrice
 std::ostream& operator << (std::ostream& out, const Matrix& m);
 
 #endif

@@ -14,6 +14,8 @@ public:
     double predict(std::vector<double>& xi);
     void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
 
+    std::vector<Layer> getLayers() const {return m_layers;};
+
 protected:
     std::vector<Layer> m_layers;
     int input_dim;
@@ -23,5 +25,7 @@ protected:
     double propagate(const std::vector<double>& xi);
     void backpropagate(const std::vector<double>& xi, const double y, const double di, const double learning_rate);
 };
+
+std::ostream& operator << (std::ostream& out, const NeuralNetwork& net);
 
 #endif
