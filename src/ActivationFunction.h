@@ -11,8 +11,8 @@ public:
     ActivationFunction();
     ~ActivationFunction();
 
-    virtual std::vector<double> Eval(std::vector<double> z) const = 0;
-    virtual std::vector<double> EvalDev(std::vector<double> z) const = 0;
+    virtual std::vector<double> eval(std::vector<double> z) const = 0;
+    virtual std::vector<double> evalDev(std::vector<double> z) const = 0;
 
 };
 
@@ -25,8 +25,8 @@ public:
     SigmoidFunction();
     ~SigmoidFunction();
 
-    virtual std::vector<double> Eval(std::vector<double> z) const;
-    virtual std::vector<double> EvalDev(std::vector<double> z) const;
+    virtual std::vector<double> eval(std::vector<double> z) const;
+    virtual std::vector<double> evalDev(std::vector<double> z) const;
 };
 
 #endif // ACTIVATION_FUNCTION_H
