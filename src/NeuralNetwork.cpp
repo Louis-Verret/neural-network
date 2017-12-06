@@ -41,11 +41,11 @@ void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<double
         double y;
         for (int j = 0; j<s; j++) {
             y = propagate(x[j]);
-            backpropagate(x[j], y, d[j], learning_rate);
-            //std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
+            //backpropagate(x[j], y, d[j], learning_rate);
+            std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
             error += (d[j] - y) * (d[j] - y);
         }
-        std::cout << "Error: " << error << std::endl;
+        //std::cout << "Error: " << error << std::endl;
     }
 
 }
@@ -58,7 +58,7 @@ double NeuralNetwork::predict(std::vector<double>& xi) {
     return propagate(xi);
 }
 
-void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int input_dim = 0) {
+void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int input_dim) {
     if (input_dim != 0) { // for the first input layer
         Layer layer(input_dim, neurons_number, function_name);
         m_layers.push_back(layer);
