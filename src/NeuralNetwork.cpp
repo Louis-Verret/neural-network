@@ -60,7 +60,7 @@ double NeuralNetwork::propagate(const std::vector<double>& input) {
     std::vector<double> x = input;
     std::vector<double> y;
     for (std::vector<Layer>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
-        y = it->propagate(x);
+        y = it->computeOutput(x);
         x = y;
     }
     return y[0];
