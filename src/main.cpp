@@ -11,14 +11,14 @@ int main(int argc, char **argv) {
    NeuralNetwork *net = new NeuralNetwork(x, d, 100);
 
    std::string sigmoid ("sigmoid");
-   net->addLayer(10, sigmoid, 1);
-   net->addLayer(18, sigmoid);
-   net->addLayer(10, sigmoid);
+   net->addLayer(5, sigmoid, 1);
+  // net->addLayer(18, sigmoid);
+   net->addLayer(5, sigmoid);
    net->addLayer(1, sigmoid);
 
    //std::cout << *net;
 
-   net->fit(x, d, 1, 0.01);
+   net->fit(x, d, 10000, 0.001);
    //double output = net->predict(x_test);
    //std::cout << "Output: " << output << std::endl;
 
