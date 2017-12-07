@@ -87,7 +87,7 @@ void NeuralNetwork::propagate(const std::vector<double>& input) {
         // std::cout << it->getInputDim() << std::endl;
         //y = it->computeOutput(x);
         //x = y;
-        m_z.push_back((*it)->multiply(m_a.back()));
+        m_z.push_back((*it)->add((*it)->multiply(m_a.back())));
         m_a.push_back((*it)->activate(m_z.back()));
     }
     // int n_layer = m_layers[1].size();
@@ -135,6 +135,7 @@ void NeuralNetwork::backpropagate(const std::vector<double>& di, const double le
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
     layer->updateWeights(m_a[L-1], delta_suiv, learning_rate);
+    layer->updateBias(delta_suiv, learning_rate);
 
     for(int l = L-2; l >= 0; l--) {
         Layer* layer = m_layers[l];
@@ -143,6 +144,7 @@ void NeuralNetwork::backpropagate(const std::vector<double>& di, const double le
         //std::cout << "size: " << layer->getWeights()->transpose().getM() << " " << delta_suiv.size() << std::endl;
         delta_curr = (layer_suiv->getWeights()->transpose() * delta_suiv) * layer->getActivationFunction()->evalDev(m_z[l]);
         layer->updateWeights(m_a[l], delta_curr, learning_rate);
+        layer->updateBias(delta_curr, learning_rate);
         delta_suiv = delta_curr;
     }
 
