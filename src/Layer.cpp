@@ -1,6 +1,7 @@
 #include "Layer.h"
 
 #include <iostream>
+#include "Utils.h"
 
 Layer::~Layer() {
     delete m_weights;
@@ -42,26 +43,6 @@ std::vector<double> Layer::activate(const std::vector<double>& x) {
 
 std::vector<double> Layer::multiply(const std::vector<double>& input) {
     return (*m_weights) * input;
-}
-
-
-std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) {
-    if (v1.size() != v2.size()) {
-        perror("Invalid size for vector addition");
-    }
-    std::vector<double> res;
-    for (int i = 0; i<v1.size(); i++) {
-        res.push_back(v1[i] + v2[i]);
-    }
-    return res;
-}
-
-std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
-    int n = v.size();
-    for (int i = 0; i < n; i++) {
-        out << v[i] << " ";
-    }
-    return out;
 }
 
 
