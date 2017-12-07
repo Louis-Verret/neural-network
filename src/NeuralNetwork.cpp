@@ -90,19 +90,7 @@ void NeuralNetwork::propagate(const std::vector<double>& input) {
         m_z.push_back((*it)->add((*it)->multiply(m_a.back())));
         m_a.push_back((*it)->activate(m_z.back()));
     }
-    // int n_layer = m_layers[1].size();
-    // for (int j = 0; j < n_layer; j++) {
-    //     double y1j = 0;
-    //     for (int k = 0; k < n; k++) {
-    //         y1j += m_layers[0][k] * xi[k];
-    //     }
-    //     o.push_back(activation(y1j));
-    // }
-    // double ys = 0;
-    // for (int k = 0; k < n_layer; k++) {
-    //     ys += m_layers[1][k] * o[k];
-    // }
-    // return activation(ys);
+    
 }
 
 std::vector<double> NeuralNetwork::computeGradient(const std::vector<double>& di) {
@@ -147,22 +135,6 @@ void NeuralNetwork::backpropagate(const std::vector<double>& di, const double le
         layer->updateBias(delta_curr, learning_rate);
         delta_suiv = delta_curr;
     }
-
-    // int n_layer = m_layers[1].size();
-    // double delta2 = (y - di) * y * (1 - y);
-    // std::vector<double> weights;
-    //
-    // for (int i = 0; i<n_layer; i++) {
-    //     weights.push_back(m_layers[1][i]);
-    //     m_layers[1][i] -= learning_rate * o[i] * delta2;
-    // }
-    //
-    // double delta1;
-    // for (int i = 0; i < n_layer; i++) {
-    //     delta1 = delta2 * weights[i] * o[i] * (1 - o[i]);
-    //     m_layers[0][i] -= learning_rate * xi[0] * delta1;
-    // }
-
 }
 
 
