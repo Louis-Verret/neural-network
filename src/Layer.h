@@ -19,6 +19,7 @@ public:
 
     //std::vector<double> computeOutput(const std::vector<double>& input);
     std::vector<double> multiply(const std::vector<double>& input);
+    std::vector<double> add(const std::vector<double>& v);
     std::vector<double> activate(const std::vector<double>& x);
     void updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate);
 
