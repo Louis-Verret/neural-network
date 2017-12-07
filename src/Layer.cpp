@@ -39,6 +39,22 @@ std::vector<double> Layer::multiply(const std::vector<double>& input) {
     return (*m_weights) * input;
 }
 
+
+std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) {
+    if (v1.size() != v2.size()) {
+        perror("Invalid size for vector addition");
+    }
+    std::vector<double> res;
+    for (int i = 0; i<v1.size(); i++) {
+        res.push_back(v1[i] + v2[i]);
+    }
+    return res;
+}
+
+std::vector<double> Layer::add(const std::vector<double>& v) {
+    return v + m_bias;
+}
+
 void Layer::updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate) {
     int M = m_weights->getM();
     int N = m_weights->getN();
