@@ -9,6 +9,6 @@ set(SOURCES
         src/Layer.cpp
         src/NeuralNetwork.cpp
         src/ActivationFunction.cpp
-        )
+        src/Utils.cpp)
 
 add_executable(neuralnet src/main.cpp ${SOURCES})

@@ -1,43 +1,14 @@
 #include "NeuralNetwork.h"
-#include <cmath>
 #include <iostream>
 
 
-NeuralNetwork::NeuralNetwork(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s) {
-    generateData(x, d, s);
+NeuralNetwork::NeuralNetwork() {
 }
 
 NeuralNetwork::~NeuralNetwork() {
     int nb = m_layers.size();
     for (int i=0; i<nb; i++) {
         delete m_layers[i];
-    }
-}
-
-void NeuralNetwork::generateData(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s) {
-    srand(time(NULL));
-    double max_input = -10;
-    double min_input = 10;
-    double max_d = -1;
-    double min_d = 1;
-    for (int i = 0; i<s; i++) {
-        std::vector<double> xi;
-        std::vector<double> di;
-        double input = ((double)rand() / (double)RAND_MAX) * 6.28 - 3.14;
-        max_input = std::max(max_input, input);
-        min_input = std::min(min_input, input);
-        max_d = std::max(max_d, sin(input));
-        min_d = std::min(min_d, sin(input));
-        xi.push_back(input);
-        di.push_back(sin(input));
-        d.push_back(di);
-        x.push_back(xi);
-    }
-    for (int i = 0; i<s; i++) {
-        x[i][0] = (x[i][0] - min_input) / (max_input - min_input);
-        d[i][0] = (d[i][0] - min_d) / (max_d - min_d);
-        //std::cout << "d: " << d[i] << std::endl;
-        //std::cout << "x: " << x[i][0] << std::endl;
     }
 }
 
