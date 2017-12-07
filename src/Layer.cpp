@@ -3,13 +3,15 @@
 #include <iostream>
 
 Layer::~Layer() {
+    delete m_weights;
 }
 
 Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
  m_input_dim(input_dim),
- m_neurons_number(neurons_number),
- m_weights(neurons_number, input_dim)
+ m_neurons_number(neurons_number)//,
+ //m_weights(neurons_number, input_dim)
 {
+    m_weights = new Matrix(neurons_number, input_dim);
     if (function_name.compare("sigmoid") == 0) {
         m_f = new  SigmoidFunction();
     }
@@ -34,15 +36,15 @@ std::vector<double> Layer::activate(const std::vector<double>& x) {
 }
 
 std::vector<double> Layer::multiply(const std::vector<double>& input) {
-    return m_weights * input;
+    return (*m_weights) * input;
 }
 
 void Layer::updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate) {
-    int M = m_weights.getM();
-    int N = m_weights.getN();
+    int M = m_weights->getM();
+    int N = m_weights->getN();
     for (int i = 0 ; i<N ; i++) {
         for (int j = 0 ; j<M ; j++) {
-            m_weights(i,j) -= learning_rate * a[j] * delta[i];
+            (*m_weights)(i,j) -= learning_rate * a[j] * delta[i];
         }
     }
 

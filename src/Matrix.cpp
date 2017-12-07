@@ -11,7 +11,7 @@ Matrix::~Matrix() {
 Matrix::Matrix(int input_dim, int output_dim) :
         m_n(input_dim),
         m_m(output_dim) {
-    m_coefficients = std::vector<double>();
+    //m_coefficients = std::vector<double>();
     for (int i = 0; i < output_dim * input_dim; i++) {
         double r = ((double) rand() / (double) RAND_MAX);
         m_coefficients.push_back(r);
@@ -52,6 +52,7 @@ Matrix Matrix::transpose() const{ //non cache aware + matrice initialisée à de
             transpose(i, j) = m_coefficients[j * m_m + i];
         }
     }
+    return transpose;
 }
 
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
