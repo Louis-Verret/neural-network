@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
    //std::cout << *net;
 
    net->fit(x, d, 10000, 0.1);
-   //double output = net->predict(x_test);
+   //double output = net->predict(x_test)[0];
    //std::cout << "Output: " << output << std::endl;
 
 
