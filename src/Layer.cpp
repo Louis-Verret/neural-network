@@ -12,6 +12,11 @@ Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
  //m_weights(neurons_number, input_dim)
 {
     m_weights = new Matrix(neurons_number, input_dim);
+    m_bias = std::vector<double>();
+    for (int i = 0; i < m_neurons_number; i++) {
+        double r = ((double) rand() / (double) RAND_MAX);
+        m_bias.push_back(r);
+    }
     if (function_name.compare("sigmoid") == 0) {
         m_f = new  SigmoidFunction();
     }
@@ -51,6 +56,15 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
     return res;
 }
 
+std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
+    int n = v.size();
+    for (int i = 0; i < n; i++) {
+        out << v[i] << " ";
+    }
+    return out;
+}
+
+
 std::vector<double> Layer::add(const std::vector<double>& v) {
     return v + m_bias;
 }
@@ -66,10 +80,19 @@ void Layer::updateWeights(const std::vector<double>& a, const std::vector<double
 
 }
 
+void Layer::updateBias(const std::vector<double>& delta, double learning_rate) {
+    int N = delta.size();
+    for (int i = 0 ; i<N ; i++) {
+        m_bias[i] -= learning_rate * delta[i];
+    }
+
+}
+
 
 std::ostream& operator << (std::ostream& out, const Layer& layer) {
     out << "Layer with " << layer.getInputDim() << " input dimension(s) and " << layer.getNeuronsNumber() << " neuron(s)." << std::endl;
     out << "Costs are:" << std::endl;
-    out << layer.getWeights();
+    out << *layer.getWeights();
+    out << "And bias is: " << layer.getBias();
     return out;
 }

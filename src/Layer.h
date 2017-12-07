@@ -15,6 +15,7 @@ public:
     int getNeuronsNumber() const {return m_neurons_number;};
     int getInputDim() const {return m_input_dim;};
     Matrix* getWeights() const {return m_weights;};
+    std::vector<double> getBias() const {return m_bias;};
     ActivationFunction* getActivationFunction() const {return m_f;};
 
     //std::vector<double> computeOutput(const std::vector<double>& input);
@@ -22,6 +23,8 @@ public:
     std::vector<double> add(const std::vector<double>& v);
     std::vector<double> activate(const std::vector<double>& x);
     void updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate);
+    void updateBias(const std::vector<double>& delta, double learning_rate);
+
 
 protected:
     Matrix* m_weights;
