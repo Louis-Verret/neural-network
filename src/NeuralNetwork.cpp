@@ -167,7 +167,7 @@ void NeuralNetwork::backpropagate(const std::vector<double>& di, const double le
 std::ostream& operator << (std::ostream& out, const NeuralNetwork& net) {
     std::vector<Layer*> layers = net.getLayers();
     for (std::vector<Layer*>::iterator it = layers.begin(); it != layers.end(); ++it) {
-        out << *it;
+        out << *(*it) << std::endl;
         out << "----------------------------------------------------" << std::endl;
     }
     return out;
