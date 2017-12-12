@@ -10,10 +10,10 @@ class NeuralNetwork
 public:
     NeuralNetwork();
     ~NeuralNetwork();
-    void generateData(std::vector<std::vector<double> >& x,  std::vector<std::vector<double> >& d, int s);
     void fit(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int epoch, const double learning_rate);
     std::vector<double> predict(std::vector<double>& xi);
     void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
+    void save(const char* file_name);
 
     std::vector<Layer*> getLayers() const {return m_layers;};
 

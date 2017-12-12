@@ -23,7 +23,7 @@ std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
     return out;
 }
 
-void generateData(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s) {
+void generateSinusData(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s) {
     srand(time(NULL));
     double max_input = -10;
     double min_input = 10;

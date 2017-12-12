@@ -8,6 +8,6 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
 
 std::ostream& operator << (std::ostream& out, const std::vector<double>& v);
 
-void generateData(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s);
+void generateSinusData(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int s);
 
 #endif

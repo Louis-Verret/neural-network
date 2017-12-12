@@ -1,6 +1,6 @@
 #include "NeuralNetwork.h"
 #include <iostream>
-
+#include <fstream>
 
 NeuralNetwork::NeuralNetwork() {
 }
@@ -44,6 +44,19 @@ void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int 
         input_dim = m_layers.back()->getNeuronsNumber();
         Layer* layer = new Layer(input_dim, neurons_number, function_name);
         m_layers.push_back(layer);
+    }
+}
+
+void NeuralNetwork::save(const char* file_name) {
+    std::ofstream file;
+    file.open(file_name);
+    if (file.is_open()) {
+        file << m_layers.size() << std::endl;
+        for (std::vector<Layer*>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
+            file << (*it)->getInputDim() << " " << (*it)->getNeuronsNumber() << std::endl;
+
+        }
+        file.close();
     }
 }
 
