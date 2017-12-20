@@ -1,6 +1,6 @@
 #include "ActivationFunction.h"
 
-ActivationFunction::ActivationFunction()
+ActivationFunction::ActivationFunction(std::string name) : m_name(name)
 {
 
 }
@@ -10,7 +10,7 @@ ActivationFunction::~ActivationFunction()
 
 }
 
-SigmoidFunction::SigmoidFunction()
+SigmoidFunction::SigmoidFunction() : ActivationFunction(std::string("sigmoid"))
 {
 
 }

@@ -1,6 +1,9 @@
 #include "NeuralNetwork.h"
+#include "Utils.h"
+
 #include <iostream>
 #include <fstream>
+#include <string>
 
 NeuralNetwork::NeuralNetwork() {
 }
@@ -53,11 +56,39 @@ void NeuralNetwork::save(const char* file_name) {
     if (file.is_open()) {
         file << m_layers.size() << std::endl;
         for (std::vector<Layer*>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
-            file << (*it)->getInputDim() << " " << (*it)->getNeuronsNumber() << std::endl;
-
+            if (it == m_layers.begin()) {
+                file << (*it)->getInputDim() << " " << (*it)->getNeuronsNumber() << std::endl;
+            }
+            else {
+                file << (*it)->getNeuronsNumber() << std::endl;
+            }
+            file << *((*it)->getWeights());
+            file << (*it)->getBias() << std::endl;
+            file << (*it)->getActivationFunction()->getName() << std::endl;
         }
         file.close();
     }
+
+    else std::cout << "Unable to open file " << file_name << std::endl;
+}
+
+void NeuralNetwork::load(const char* file_name) {
+    FILE * file;
+    file = fopen(file_name, "r");
+    int n_layers; int input_dim; int neurons_number;
+    fscanf(file, "%d\n", &(n_layers));
+    std::cout << n_layers << std::endl;
+    //std::cout << n_layers << std::endl;
+    for (int l = 0; l < n_layers; l++) {
+        if (l == 0) {
+            fscanf(file, "%d %d\n", &(input_dim), &(neurons_number));
+        } else {
+            fscanf(file, "%d\n", &(n_layers));
+        }
+        std::cout << l << std::endl;
+        //std::cout << n_layers << std::endl;
+    }
+    fclose(file);
 }
 
 void NeuralNetwork::propagate(const std::vector<double>& input) {
@@ -74,7 +105,7 @@ void NeuralNetwork::propagate(const std::vector<double>& input) {
         m_z.push_back((*it)->add((*it)->multiply(m_a.back())));
         m_a.push_back((*it)->activate(m_z.back()));
     }
-    
+
 }
 
 std::vector<double> NeuralNetwork::computeGradient(const std::vector<double>& di) {
