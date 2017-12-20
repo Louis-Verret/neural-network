@@ -14,6 +14,7 @@ public:
     std::vector<double> predict(std::vector<double>& xi);
     void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
     void save(const char* file_name);
+    void load(const char* file_name);
 
     std::vector<Layer*> getLayers() const {return m_layers;};
 

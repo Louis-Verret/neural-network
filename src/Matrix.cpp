@@ -57,7 +57,7 @@ Matrix Matrix::transpose() const{ //non cache aware + matrice initialisée à de
 
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
-    out << "Size ("  << n << " * " << m << ")" << std::endl ;
+    //out << "Size ("  << n << " * " << m << ")" << std::endl ;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             out << mat(i,j) << " ";

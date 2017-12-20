@@ -15,11 +15,9 @@ std::vector<double> operator+(const std::vector<double>& v1, const std::vector<d
 
 std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
     int n = v.size();
-    out << "( ";
     for (int i = 0; i < n; i++) {
         out << v[i] << " ";
     }
-    out << ")";
     return out;
 }
 

@@ -13,16 +13,19 @@ int main(int argc, char **argv) {
     NeuralNetwork *net = new NeuralNetwork();
     generateSinusData(x, d, 100);
 
-    std::string sigmoid ("sigmoid");
-    net->addLayer(5, sigmoid, 1);
-    net->addLayer(5, sigmoid);
-    net->addLayer(1, sigmoid);
+    // std::string sigmoid ("sigmoid");
+    // net->addLayer(5, sigmoid, 1);
+    // net->addLayer(5, sigmoid);
+    // net->addLayer(1, sigmoid);
+
+    net->load("../data/sinus_training.data");
+    std::cout << *net << std::endl;
 
     //std::cout << *net;
 
     //net->fit(x, d, 10000, 0.1);
 
-    net->save("../data/sinus_training.data");
+    //net->save("../data/sinus_training.data");
 
     //double output = net->predict(x_test)[0];
     //std::cout << "Output: " << output << std::endl;
