@@ -17,6 +17,7 @@ public:
     const double &operator()(int i, int j) const;
 
     std::vector<double> operator*(const std::vector<double> &vec) const;
+    void fillRandomly();
     Matrix transpose() const;
 
 protected:

@@ -25,7 +25,7 @@ void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<std::v
             //std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
             error += (d[j][0] - m_a.back()[0]) * (d[j][0] -  m_a.back()[0]);
         }
-        std::cout << "Error: " << error << std::endl;
+        std::cout << i << " Error: " << error << std::endl;
     }
     std::cout << "Predicted/Label: " << m_a.back()[0] << " " << d[s-1][0] << std::endl;
 
