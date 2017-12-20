@@ -11,11 +11,7 @@ Matrix::~Matrix() {
 Matrix::Matrix(int input_dim, int output_dim) :
         m_n(input_dim),
         m_m(output_dim) {
-    //m_coefficients = std::vector<double>();
-    for (int i = 0; i < output_dim * input_dim; i++) {
-        double r = ((double) rand() / (double) RAND_MAX);
-        m_coefficients.push_back(r);
-    }
+    m_coefficients = std::vector<double>(output_dim * input_dim);
 }
 
 const double &Matrix::operator()(int i, int j) const {
@@ -45,7 +41,14 @@ std::vector<double> Matrix::operator*(const std::vector<double> &vec) const {
     return vec_s;
 }
 
-Matrix Matrix::transpose() const{ //non cache aware + matrice initialisée à des valeurs randoms à changer
+void Matrix::fillRandomly() {
+    for (int i = 0; i < m_m * m_n; i++) {
+        double r = ((double) rand() / (double) RAND_MAX);
+        m_coefficients[i] = r;
+    }
+}
+
+Matrix Matrix::transpose() const{ //non cache aware
     Matrix transpose(m_m, m_n);
     for (int i = 0; i<m_m; i++) {
         for (int j =0; j<m_n; j++) {

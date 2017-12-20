@@ -13,6 +13,7 @@ Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
  //m_weights(neurons_number, input_dim)
 {
     m_weights = new Matrix(neurons_number, input_dim);
+    m_weights->fillRandomly();
     m_bias = std::vector<double>();
     for (int i = 0; i < m_neurons_number; i++) {
         double r = ((double) rand() / (double) RAND_MAX);
