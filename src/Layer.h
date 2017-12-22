@@ -22,6 +22,11 @@ public:
     std::vector<double> multiply(const std::vector<double>& input);
     std::vector<double> add(const std::vector<double>& v);
     std::vector<double> activate(const std::vector<double>& x);
+
+    // Matrix multiply(const Matrix& input);
+    // Matrix add(const Matrix& v);
+    // Matrix activate(const Matrix& x);
+
     void updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate);
     void updateBias(const std::vector<double>& delta, double learning_rate);
 

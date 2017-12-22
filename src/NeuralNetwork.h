@@ -21,11 +21,14 @@ protected:
     std::vector<Layer*> m_layers;
     std::vector<std::vector<double> > m_z;
     std::vector<std::vector<double> > m_a;
+    //std::vector<Matrix> m_z_mat;
+    //std::vector<Matrix> m_a_mat;
     int input_dim;
     std::vector<double> o;
 
     std::vector<double> computeGradient(const std::vector<double>& di);
     void propagate(const std::vector<double>& input);
+    //void propagate(const Matrix& input);
     void backpropagate(const std::vector<double>& di, const double learning_rate);
 };
 
