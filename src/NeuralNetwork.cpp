@@ -12,23 +12,48 @@ NeuralNetwork::~NeuralNetwork() {
     }
 }
 
-void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int epoch, const double learning_rate) {
-    int s = x.size();
+void NeuralNetwork::fit(Matrix& x, Matrix& d, int epoch, const double learning_rate, const int batch_size, double momentum) {
+    std::vector<Matrix> batches_x;
+    std::vector<Matrix> batches_d;
+    separateDataInBatches(x, d, batches_x, batches_d, batch_size);
+    int nb_batches = batches_x.size();
     for (int i = 0; i<epoch; i++) {
         double error = 0;
-        for (int j = 0; j<s; j++) {
-            propagate(x[j]);
-            backpropagate(d[j], learning_rate);
-            //std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
-            error += (d[j][0] - m_a.back()[0]) * (d[j][0] -  m_a.back()[0]);
+        for (int j = 0; j<nb_batches; j++) {
+            propagate(batches_x[j]);
+            backpropagate(batches_d[j], learning_rate, batch_size, momentum);
+
+            Matrix diff = m_a.back() - batches_d[j];
+            error += diff.hadamardProduct(diff).sumElem();
         }
-        std::cout << i << " Error: " << error << std::endl;
+        std::cout << i+1 << " Error: " << error/batch_size << std::endl;
     }
-    std::cout << "Predicted/Label: " << m_a.back()[0] << " " << d[s-1][0] << std::endl;
+    std::cout << "Predicted/Label: " << m_a.back() << " " << batches_d[nb_batches-1] << std::endl;
 
 }
 
-std::vector<double> NeuralNetwork::predict(std::vector<double>& xi) {
+void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& d, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_d, const int batch_size) {
+    for (int i = 0; i<x.getM(); i+=batch_size) {
+        int bound = 0;
+        if (i + batch_size < x.getM()) {
+            bound = batch_size;
+        } else {
+            bound = x.getM() - i;
+        }
+        Matrix xi(x.getN(), bound);
+        Matrix di(d.getN(), bound);
+        for (int k = 0; k<bound; k++) {
+            for (int j = 0; j<x.getN(); j++) {
+                xi(j, k) = x(j, i + k);
+                di(j, k) = d(j, i + k);
+            }
+        }
+        batches_x.push_back(xi);
+        batches_d.push_back(di);
+    }
+}
+
+Matrix NeuralNetwork::predict(Matrix& xi) {
     propagate(xi);
     return m_a.back();
 }
@@ -60,63 +85,36 @@ void NeuralNetwork::save(const char* file_name) {
     }
 }
 
-void NeuralNetwork::propagate(const std::vector<double>& input) {
-    //std::vector<double> x = input;
-    //std::vector<double> y;
+void NeuralNetwork::propagate(Matrix& input) {
     m_a.clear();
     m_z.clear();
     m_a.push_back(input);
     for (std::vector<Layer*>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
-        // std::cout << it->getNeuronsNumber() << std::endl;
-        // std::cout << it->getInputDim() << std::endl;
-        //y = it->computeOutput(x);
-        //x = y;
         m_z.push_back((*it)->add((*it)->multiply(m_a.back())));
         m_a.push_back((*it)->activate(m_z.back()));
     }
-
 }
 
-std::vector<double> NeuralNetwork::computeGradient(const std::vector<double>& di) {
-    std::vector<double> gradient;
-    std::vector<double> a_L = m_a.back();
-    for (int j = 0; j<di.size(); j++) {
-        gradient.push_back(a_L[j] - di[j]);
-    }
-    return gradient;
+Matrix NeuralNetwork::computeGradient(const Matrix& d) {
+    Matrix a_L = m_a.back();
+    return a_L - d;
 }
 
-std::vector<double> operator*(const std::vector<double>& v1, const std::vector<double>& v2) {
-    if (v1.size() != v2.size()) {
-        perror("Invalid size for Hadamard product");
-    }
-    std::vector<double> res;
-    for (int i = 0; i<v1.size(); i++) {
-        res.push_back(v1[i] * v2[i]);
-    }
-    return res;
-}
-
-void NeuralNetwork::backpropagate(const std::vector<double>& di, const double learning_rate) {
-
-    std::vector<double> z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
-    std::vector<double> gradient = computeGradient(di);
-    //std::cout << "size: " << gradient.size() << " " << z_curr.size() << std::endl;
-    std::vector<double> delta_suiv = gradient * z_curr;
-    std::vector<double> delta_curr;
+void NeuralNetwork::backpropagate(const Matrix& d, const double learning_rate, int batch_size, double momentum) {
+    Matrix z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
+    Matrix gradient = computeGradient(d);
+    Matrix delta_suiv = gradient.hadamardProduct(z_curr);
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
-    layer->updateWeights(m_a[L-1], delta_suiv, learning_rate);
-    layer->updateBias(delta_suiv, learning_rate);
+    layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
+    layer->updateBias(delta_suiv, learning_rate, batch_size, momentum);
 
     for(int l = L-2; l >= 0; l--) {
         Layer* layer = m_layers[l];
         Layer* layer_suiv = m_layers[l+1];
-        //std::cout << "size M init: " << layer->getWeights()->getN() << " " << layer->getWeights()->getM()  << std::endl;
-        //std::cout << "size: " << layer->getWeights()->transpose().getM() << " " << delta_suiv.size() << std::endl;
-        delta_curr = (layer_suiv->getWeights()->transpose() * delta_suiv) * layer->getActivationFunction()->evalDev(m_z[l]);
-        layer->updateWeights(m_a[l], delta_curr, learning_rate);
-        layer->updateBias(delta_curr, learning_rate);
+        Matrix delta_curr = (layer_suiv->getWeights()->transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
+        layer->updateWeights(m_a[l], delta_curr, learning_rate, batch_size, momentum);
+        layer->updateBias(delta_curr, learning_rate, batch_size, momentum);
         delta_suiv = delta_curr;
     }
 }

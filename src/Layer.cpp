@@ -5,6 +5,8 @@
 
 Layer::~Layer() {
     delete m_weights;
+    delete m_last_update_weights;
+    delete m_f;
 }
 
 Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
@@ -13,63 +15,60 @@ Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
  //m_weights(neurons_number, input_dim)
 {
     m_weights = new Matrix(neurons_number, input_dim);
+    m_last_update_weights = new Matrix(neurons_number, input_dim);
     m_weights->fillRandomly();
+    m_last_update_weights->fillWithZero();
     m_bias = std::vector<double>();
+    m_last_update_bias = std::vector<double>();
     for (int i = 0; i < m_neurons_number; i++) {
         double r = ((double) rand() / (double) RAND_MAX);
         m_bias.push_back(r);
+        m_last_update_bias.push_back(0);
     }
     if (function_name.compare("sigmoid") == 0) {
         m_f = new  SigmoidFunction();
     }
 }
 
-std::vector<double> Layer::activate(const std::vector<double>& x) {
-    // std::cout << m_weights << std::endl;
-    // for (int i = 0; i < input.size(); i++) {
-    //     std::cout << input[i] << " ";
-    // }
-    // std::cout << std::endl;
-    // std::vector<double> e = m_weights * input;
-    // std::vector<double> fe = m_f->eval(e);
-    // for (int i = 0; i < e.size(); i++) {
-    //     std::cout << e[i] << " ";
-    // }
-    // std::cout << std::endl;
-    // for (int i = 0; i < fe.size(); i++) {
-    //     std::cout << fe[i] << " ";
-    // }
-    return m_f->eval(x);
-}
-
-std::vector<double> Layer::multiply(const std::vector<double>& input) {
+Matrix Layer::multiply(const Matrix& input) {
     return (*m_weights) * input;
 }
 
-
-std::vector<double> Layer::add(const std::vector<double>& v) {
+Matrix Layer::add(Matrix v) {
     return v + m_bias;
 }
 
-void Layer::updateWeights(const std::vector<double>& a, const std::vector<double>& delta, double learning_rate) {
+Matrix Layer::activate(const Matrix& x) {
+    return m_f->eval(x);
+}
+
+void  Layer::updateWeights(const Matrix& a, const Matrix& delta, double learning_rate, int mini_batch, double momentum) {
     int M = m_weights->getM();
     int N = m_weights->getN();
+    Matrix calc = delta * a.transpose();
     for (int i = 0 ; i<N ; i++) {
         for (int j = 0 ; j<M ; j++) {
-            (*m_weights)(i,j) -= learning_rate * a[j] * delta[i];
+            double update_val = -(learning_rate/mini_batch) * calc(i, j) + momentum * (*m_last_update_weights)(i, j);
+            (*m_weights)(i, j) += update_val;
+            (*m_last_update_weights)(i, j) = update_val;
         }
     }
-
 }
 
-void Layer::updateBias(const std::vector<double>& delta, double learning_rate) {
-    int N = delta.size();
+void Layer::updateBias(const Matrix& delta, double learning_rate, int mini_batch, double momentum) {
+    int N = delta.getN();
+    int M = delta.getM();
     for (int i = 0 ; i<N ; i++) {
-        m_bias[i] -= learning_rate * delta[i];
+        double sum = 0;
+        for (int j = 0; j<M; j++) {
+            sum += delta(i, j);
+        }
+        double update_val = -(learning_rate/mini_batch) * sum + momentum * m_last_update_bias[i];
+        m_bias[i] += update_val;
+        m_last_update_bias[i] = update_val;
     }
 
 }
-
 
 std::ostream& operator << (std::ostream& out, const Layer& layer) {
     out << "Layer with " << layer.getInputDim() << " input dimension(s) and " << layer.getNeuronsNumber() << " neuron(s)." << std::endl;
