@@ -20,21 +20,27 @@ SigmoidFunction::~SigmoidFunction()
 
 }
 
-std::vector<double> SigmoidFunction::eval(std::vector<double> z) const {
-    std::vector<double> result;
-    int n = z.size();
+Matrix SigmoidFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
     for (int i = 0; i<n ; i++) {
-        result.push_back(1.0 / (1.0 + exp(-z[i])));
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = 1.0 / (1.0 + exp(-z(i, j)));
+        }
     }
     return result;
 }
 
-std::vector<double> SigmoidFunction::evalDev(std::vector<double> z) const {
-    std::vector<double> val = eval(z);
-    std::vector<double> result;
-    int n = z.size();
+Matrix SigmoidFunction::evalDev(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
     for (int i = 0; i<n ; i++) {
-        result.push_back(val[i] * (1 - val[i]));
+        for (int j = 0; j<m ; j++) {
+            double eval = 1.0 / (1.0 + exp(-z(i, j)));
+            result(i, j) = (eval) * (1 - eval);
+        }
     }
     return result;
 }

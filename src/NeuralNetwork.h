@@ -10,8 +10,8 @@ class NeuralNetwork
 public:
     NeuralNetwork();
     ~NeuralNetwork();
-    void fit(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int epoch, const double learning_rate);
-    std::vector<double> predict(std::vector<double>& xi);
+    void fit(Matrix& x, Matrix& d, int epoch, const double learning_rate, const int batch_size, double momentum);
+    Matrix predict(Matrix& xi);
     void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
     void save(const char* file_name);
 
@@ -19,17 +19,14 @@ public:
 
 protected:
     std::vector<Layer*> m_layers;
-    std::vector<std::vector<double> > m_z;
-    std::vector<std::vector<double> > m_a;
-    //std::vector<Matrix> m_z_mat;
-    //std::vector<Matrix> m_a_mat;
+    std::vector<Matrix> m_z;
+    std::vector<Matrix> m_a;
     int input_dim;
-    std::vector<double> o;
 
-    std::vector<double> computeGradient(const std::vector<double>& di);
-    void propagate(const std::vector<double>& input);
-    //void propagate(const Matrix& input);
-    void backpropagate(const std::vector<double>& di, const double learning_rate);
+    Matrix computeGradient(const Matrix& d);
+    void propagate(Matrix& input);
+    void backpropagate(const Matrix& d, const double learning_rate, int batch_size, double momentum);
+    void separateDataInBatches(Matrix& x, Matrix& d, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_d, const int batch_size);
 };
 
 std::ostream& operator << (std::ostream& out, const NeuralNetwork& net);

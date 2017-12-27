@@ -3,17 +3,17 @@
 
 #include <vector>
 #include <cmath>
+#include "Matrix.h"
 
 class ActivationFunction
 {
 public:
 
     ActivationFunction();
-    ~ActivationFunction();
+    virtual ~ActivationFunction();
 
-    virtual std::vector<double> eval(std::vector<double> z) const = 0;
-    virtual std::vector<double> evalDev(std::vector<double> z) const = 0;
-
+    virtual Matrix eval(const Matrix& z) const = 0;
+    virtual Matrix evalDev(const Matrix& z) const = 0;
 };
 
 
@@ -25,8 +25,8 @@ public:
     SigmoidFunction();
     ~SigmoidFunction();
 
-    virtual std::vector<double> eval(std::vector<double> z) const;
-    virtual std::vector<double> evalDev(std::vector<double> z) const;
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
 };
 
 #endif // ACTIVATION_FUNCTION_H
