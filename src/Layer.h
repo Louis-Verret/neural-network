@@ -9,27 +9,39 @@
 class Layer
 {
 public:
-    Layer(int input_dim, int neurons_number, std::string function_name);
+    Layer(int input_dim, int neurons_number, char const*  function_name);
     ~Layer();
 
     int getNeuronsNumber() const {return m_neurons_number;};
     int getInputDim() const {return m_input_dim;};
     Matrix* getWeights() const {return m_weights;};
+    Matrix* getLastWeights() const {return m_V_dW;};
+    Matrix* getLastWeights2() const {return m_S_dW;};
+    void setWeights(Matrix& weights) {*m_weights = weights;};
+    void setLastWeights(Matrix& V_dW) {*m_V_dW = V_dW;};
+    void setLastWeights2(Matrix& S_dW) {*m_S_dW = S_dW;};
     std::vector<double> getBias() const {return m_bias;};
+    std::vector<double> getLastBias() const {return m_V_dB;};
+    std::vector<double> getLastBias2() const {return m_S_dB;};
+    void setBias(std::vector<double>& bias) {m_bias = bias;};
+    void setLastBias(std::vector<double>& V_dB) {m_V_dB = V_dB;};
+    void setLastBias2(std::vector<double>& S_dB) {m_S_dB = S_dB;};
     ActivationFunction* getActivationFunction() const {return m_f;};
 
     Matrix multiply(const Matrix& input);
     Matrix add(Matrix v);
     Matrix activate(const Matrix& x);
 
-    void updateWeights(const Matrix& a, const Matrix& delta, double learning_rate, int mini_batch, double momentum);
-    void updateBias(const Matrix& delta, double learning_rate, int mini_batch, double momentum);
+    //void updateWeights(const Matrix& a, const Matrix& delta, double learning_rate, int batch_size, double momentum);
+    //void updateBias(const Matrix& delta, double learning_rate, int batch_size, double momentum);
 
 protected:
     Matrix* m_weights;
-    Matrix* m_last_update_weights;
+    Matrix* m_V_dW;
+    Matrix* m_S_dW;
     std::vector<double> m_bias;
-    std::vector<double> m_last_update_bias;
+    std::vector<double> m_V_dB;
+    std::vector<double> m_S_dB;
     int m_input_dim;
     int m_neurons_number;
     ActivationFunction* m_f;
