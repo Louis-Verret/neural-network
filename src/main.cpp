@@ -1,33 +1,34 @@
 #include "NeuralNetwork.h"
 #include "Utils.h"
+#include "Optimizer.h"
 
 #include <iostream>
 
 
 int main(int argc, char **argv) {
     Matrix x;
-    Matrix d;
-    generateSinusData(x, d, 100);
+    Matrix y;
+    generateSinusData(x, y, 100);
 
-    NeuralNetwork *net = new NeuralNetwork();
+    //Optimizer* opti = new Adam(0.005, 0.9, 0.999, 1e-8);
+    Optimizer* opti = new SGD(1, 0.9);
 
-    std::string sigmoid ("sigmoid");
-    net->addLayer(5, sigmoid, 1);
-    net->addLayer(5, sigmoid);
-    net->addLayer(1, sigmoid);
+    NeuralNetwork *net = new NeuralNetwork(opti, "mean_squared_error");
+
+    net->addLayer(5, "sigmoid", 1);
+    net->addLayer(5, "sigmoid");
+    net->addLayer(1, "sigmoid");
 
     //std::cout << *net;
-
-    net->fit(x, d, 20000, 1, 32, 0.9);
+    net->fit(x, y, 10000, 10);
 
     //net->save("../data/sinus_training.data");
     double input = 1.57; // pi/2
     Matrix x_test(1, 1);
-    x_test(0, 0) = (input + 1.0) / 5.0;
+    x_test(0, 0) = (input + 4)/8;
     Matrix output = net->predict(x_test);
-    std::cout << "Output: " << output(0,0)*2 -1 << std::endl;
+    std::cout << "sin(pi/2): " << 2*output(0,0) -1 << std::endl;
 
     delete net;
-
     return 0;
 }

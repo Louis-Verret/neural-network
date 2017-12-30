@@ -1,5 +1,6 @@
 #include "Matrix.h"
 #include <iostream>
+#include <cmath>
 #include <stdexcept>
 
 Matrix::Matrix() : m_n(0), m_m(0) {
@@ -60,7 +61,7 @@ Matrix Matrix::operator*(const Matrix &mat) const {
     return mat_s;
 }
 
-Matrix Matrix::operator+(const std::vector<double> &vec) {
+Matrix Matrix::operator+(const std::vector<double> &vec) const {
     if (m_n != (int) vec.size()) {
         throw std::logic_error("Invalid addition Mat+Vec");
     }
@@ -74,7 +75,7 @@ Matrix Matrix::operator+(const std::vector<double> &vec) {
     return result;
 }
 
-Matrix Matrix::operator-(const Matrix& mat) {
+Matrix Matrix::operator-(const Matrix& mat) const {
     if (m_n != mat.getN() || m_m != mat.getM()) {
         throw std::logic_error("Invalid substraction Mat-Mat");
     }
@@ -83,6 +84,55 @@ Matrix Matrix::operator-(const Matrix& mat) {
     for (int i = 0; i < m_n; i++) {
         for (int j = 0; j < m_m; j++) {
             result(i, j) = m_coefficients[i * m_m + j] - mat(i,j);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator+(const Matrix& mat) const {
+    if (m_n != mat.getN() || m_m != mat.getM()) {
+        throw std::logic_error("Invalid addition Mat+Mat");
+    }
+
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            result(i, j) = m_coefficients[i * m_m + j] + mat(i,j);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator+(const double coeff) const {
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            result(i, j) = m_coefficients[i * m_m + j] + coeff;
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator/(const Matrix& mat) const {
+    if (m_n != mat.getN() || m_m != mat.getM()) {
+        throw std::logic_error("Invalid division Mat/Mat");
+    }
+
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            result(i, j) = m_coefficients[i * m_m + j] / mat(i,j);
+        }
+    }
+    return result;
+}
+
+
+Matrix Matrix::operator/(const double coeff) const {
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            result(i, j) = m_coefficients[i * m_m + j]/coeff;
         }
     }
     return result;
@@ -98,7 +148,7 @@ double Matrix::sumElem() const {
     return sum;
 }
 
-Matrix Matrix::hadamardProduct(const Matrix &mat) {
+Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     if (m_n != mat.getN() || m_m != mat.getM()) {
         throw std::logic_error("Invalid Matrix Hadamard Product");
     }
@@ -107,6 +157,32 @@ Matrix Matrix::hadamardProduct(const Matrix &mat) {
     for (int i = 0; i < m_n; i++) {
         for (int j = 0; j < m_m; j++) {
             result(i, j) = m_coefficients[i * m_m + j] * mat(i, j);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::sqrt() const {
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            if (m_coefficients[i* m_m +j] < 0) {
+                throw std::logic_error("Invalid Matrix sqrt");
+            }
+            result(i, j) = std::sqrt(m_coefficients[i * m_m + j]);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::log() const {
+    Matrix result(m_n, m_m);
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            if (m_coefficients[i* m_m +j] <= 0) {
+                throw std::logic_error("Invalid Matrix log");
+            }
+            result(i, j) = std::log(m_coefficients[i * m_m + j]);
         }
     }
     return result;
@@ -125,7 +201,7 @@ void Matrix::fillWithZero() {
     }
 }
 
-Matrix Matrix::transpose() const{ //not cache aware
+Matrix Matrix::transpose() const { //not cache aware
     Matrix transpose(m_m, m_n);
     for (int i = 0; i<m_m; i++) {
         for (int j =0; j<m_n; j++) {
@@ -151,4 +227,28 @@ std::ostream& operator << (std::ostream& out, const Matrix& mat) {
         out << std::endl;
     }
     return out;
+}
+
+Matrix operator*(const double coeff, const Matrix& mat) {
+    int n = mat.getN();
+    int m = mat.getM();
+    Matrix result(n, m);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            result(i, j) = coeff * mat(i,j);
+        }
+    }
+    return result;
+}
+
+Matrix operator-(const double coeff, const Matrix& mat) {
+    int n = mat.getN();
+    int m = mat.getM();
+    Matrix result(n, m);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            result(i, j) = coeff - mat(i,j);
+        }
+    }
+    return result;
 }

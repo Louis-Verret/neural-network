@@ -17,15 +17,22 @@ public:
     const double &operator()(int i, int j) const;
 
     Matrix operator*(const Matrix &mat) const;
-    Matrix operator-(const Matrix& mat);
-    Matrix operator+(const std::vector<double> &vec);
+    Matrix operator-(const Matrix& mat) const;
+    Matrix operator+(const Matrix& mat) const;
+    Matrix operator+(const std::vector<double> &vec) const;
+    Matrix operator+(const double coeff) const;
+    Matrix operator/(const double coeff) const;
+    Matrix operator/(const Matrix& mat) const;
     std::vector<double> operator*(const std::vector<double> &vec) const;
+
     void fillRandomly();
     void fillWithZero();
     Matrix transpose() const;
     double sumElem() const;
     void resize(int new_n, int new_m);
-    Matrix hadamardProduct(const Matrix &mat2);
+    Matrix sqrt() const;
+    Matrix log() const;
+    Matrix hadamardProduct(const Matrix &mat2) const;
 
 protected:
     int m_n;
@@ -35,5 +42,8 @@ protected:
 };
 
 std::ostream& operator << (std::ostream& out, const Matrix& m);
+Matrix operator*(const double coeff, const Matrix& mat);
+Matrix operator-(const double coeff, const Matrix& mat);
+
 
 #endif
