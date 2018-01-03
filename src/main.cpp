@@ -10,17 +10,17 @@ int main(int argc, char **argv) {
     Matrix y;
     generateSinusData(x, y, 100);
 
-    //Optimizer* opti = new Adam(0.005, 0.9, 0.999, 1e-8);
-    Optimizer* opti = new SGD(1, 0.9);
+    Optimizer* opti = new Adam(0.001, 0.9, 0.999, 1e-8);
+    //Optimizer* opti = new SGD(1, 0.9);
 
     NeuralNetwork *net = new NeuralNetwork(opti, "mean_squared_error");
 
     net->addLayer(5, "sigmoid", 1);
     net->addLayer(5, "sigmoid");
-    net->addLayer(1, "sigmoid");
+    net->addLayer(1, "relu");
 
     //std::cout << *net;
-    net->fit(x, y, 10000, 10);
+    net->fit(x, y, 20000, 10);
 
     //net->save("../data/sinus_training.data");
     double input = 1.57; // pi/2

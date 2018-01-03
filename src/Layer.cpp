@@ -25,17 +25,22 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name) :
     m_bias = std::vector<double>();
     m_V_dB = std::vector<double>();
     m_S_dB = std::vector<double>();
+    double weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
+    if (strcmp(function_name, "sigmoid") == 0) {
+        m_f = new SigmoidFunction();
+        //weights_init = std::sqrt(6 / (neurons_number + input_dim));
+    } else if (strcmp(function_name, "tanh") == 0) {
+        m_f = new TanhFunction();
+        //weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
+    } else if (strcmp(function_name, "relu") == 0) {
+        m_f = new ReLUFunction();
+        //weights_init = std::sqrt(12 / (neurons_number + input_dim));
+    }
     for (int i = 0; i < m_neurons_number; i++) {
-        double xavier_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
-        double r = ((double) rand() / (double) RAND_MAX) * 2 * xavier_init - xavier_init;
+        double r = ((double) rand() / (double) RAND_MAX) * 2 * weights_init - weights_init;
         m_bias.push_back(r);
         m_V_dB.push_back(0);
         m_S_dB.push_back(0);
-    }
-    if (strcmp(function_name, "sigmoid") == 0) {
-        m_f = new SigmoidFunction();
-    } else if (strcmp(function_name, "tanh") == 0) {
-        m_f = new TanhFunction();
     }
 }
 

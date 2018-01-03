@@ -40,10 +40,11 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
 
             //Matrix diff = m_a.back() - batches_y[j];
             //error += diff.hadamardProduct(diff).sumElem();
-            error += m_C->computeError(m_a.back(), batches_y[j]).sumElem();
+            error += m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
-        std::cout << t+1 << " Error: " << error/batch_size << std::endl;
+        std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
+        std::cout << " Mean Error: " << error/batches_x.size() << std::endl;
     }
     std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
 
