@@ -40,4 +40,15 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+class ReLUFunction : public  ActivationFunction
+{
+public:
+
+    ReLUFunction();
+    ~ReLUFunction();
+
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
+};
+
 #endif // ACTIVATION_FUNCTION_H
