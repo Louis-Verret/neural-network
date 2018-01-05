@@ -9,12 +9,14 @@ class Matrix {
 public:
     Matrix();
     Matrix(int n, int m);
+    Matrix(const Matrix& mat);
     ~Matrix();
 
     int getN() const { return m_n; };
     int getM() const { return m_m; };
-    double &operator()(int i, int j);
-    const double &operator()(int i, int j) const;
+    Matrix& operator=(const Matrix& mat);
+    double& operator()(int i, int j);
+    const double& operator()(int i, int j) const;
 
     Matrix operator*(const Matrix &mat) const;
     Matrix operator-(const Matrix& mat) const;
@@ -37,7 +39,7 @@ public:
 protected:
     int m_n;
     int m_m;
-    std::vector<double> m_coefficients;
+    double* m_coefficients;
 
 };
 
