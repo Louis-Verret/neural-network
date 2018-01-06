@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     net.addLayer(1, "relu");
 
     //std::cout << *net;
-    net.fit(x, y, 20000, 10);
+    net.fit(x, y, 10000, 10);
 
     //net->save("../data/sinus_training.data");
     double input = 1.57; // pi/2

@@ -26,8 +26,8 @@ SGD::~SGD()
 
 void SGD::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int batch_size, int epoch_num) const {
     Matrix dW = (delta * a.transpose()) / batch_size;
-    Matrix V_dW = dW + m_momentum * (*layer->getLastWeights());
-    Matrix new_weights = (*layer->getWeights()) - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * V_dW;
+    Matrix V_dW = dW + m_momentum * layer->getLastWeights();
+    Matrix new_weights = layer->getWeights() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * V_dW;
     layer->setLastWeights(V_dW);
     layer->setWeights(new_weights);
 }
@@ -58,11 +58,11 @@ Adam::~Adam()
 
 void Adam::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int batch_size, int epoch_num) const {
     Matrix dW = (delta * a.transpose()) / batch_size;
-    Matrix V_dW = (1 - m_beta_1) * dW + m_beta_1 * (*layer->getLastWeights());
-    Matrix S_dW = (1 - m_beta_2) * dW.hadamardProduct(dW) + m_beta_2 * (*layer->getLastWeights2());
+    Matrix V_dW = (1 - m_beta_1) * dW + m_beta_1 * layer->getLastWeights();
+    Matrix S_dW = (1 - m_beta_2) * dW.hadamardProduct(dW) + m_beta_2 * layer->getLastWeights2();
     Matrix V_dW_corrected = V_dW / (1 - std::pow(m_beta_1, epoch_num));
     Matrix S_dW_corrected = S_dW / (1 - std::pow(m_beta_2, epoch_num));
-    Matrix new_weights = (*layer->getWeights()) - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * (V_dW_corrected / (S_dW_corrected.sqrt() + m_epsilon));
+    Matrix new_weights = layer->getWeights() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * (V_dW_corrected / (S_dW_corrected.sqrt() + m_epsilon));
     layer->setLastWeights(V_dW);
     layer->setLastWeights2(S_dW);
     layer->setWeights(new_weights);
