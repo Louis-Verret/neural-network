@@ -127,7 +127,7 @@ void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epo
     for(int l = L-2; l >= 0; l--) {
         Layer* layer = m_layers[l];
         Layer* layer_suiv = m_layers[l+1];
-        Matrix delta_curr = (layer_suiv->getWeights()->transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
+        Matrix delta_curr = (layer_suiv->getWeights().transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
         //layer->updateWeights(m_a[l], delta_curr, learning_rate, batch_size, momentum);
         //layer->updateBias(delta_curr, learning_rate, batch_size, momentum);
         m_optimizer->updateWeights(layer, m_a[l], delta_curr, batch_size, epoch_num);
