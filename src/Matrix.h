@@ -30,6 +30,7 @@ public:
     Matrix transpose() const;
     double sumElem() const;
     void resize(int new_n, int new_m);
+    static Matrix generateBitMatrix(int n, int m, double bit_rate);
     Matrix sqrt() const;
     Matrix log() const;
     Matrix hadamardProduct(const Matrix &mat2) const;

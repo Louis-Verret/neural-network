@@ -49,7 +49,12 @@ Matrix Layer::add(Matrix v) {
 }
 
 Matrix Layer::activate(const Matrix& x) {
-    return m_f->eval(x);
+    if (m_dropout_rate != 0) {
+        Matrix bit_mat = Matrix::generateBitMatrix(x.getN(), x.getM(), 1 - m_dropout_rate);
+        return (m_f->eval(x).hadamardProduct(bit_mat)) / m_dropout_rate;
+    } else {
+        return m_f->eval(x);
+    }
 }
 
 std::ostream& operator << (std::ostream& out, const Layer& layer) {

@@ -188,6 +188,21 @@ Matrix Matrix::log() const {
     return result;
 }
 
+Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
+    Matrix result(n, m);
+    for (int i = 0; i<n; i++) {
+        for (int j =0; j<m; j++) {
+            double r = ((double) rand() / (double) RAND_MAX);
+            if (r < bit_rate) {
+                result(i, j) = 1;
+            } else {
+                result(i, j) = 0;
+            }
+        }
+    }
+    return result;
+}
+
 void Matrix::fillRandomly() {
     for (int i = 0; i < m_m * m_n; i++) {
         double r = ((double) rand() / (double) RAND_MAX);
