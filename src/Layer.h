@@ -9,7 +9,7 @@
 class Layer
 {
 public:
-    Layer(int input_dim, int neurons_number, char const*  function_name);
+    Layer(int input_dim, int neurons_number, char const* function_name);
     ~Layer();
 
     int getNeuronsNumber() const {return m_neurons_number;};
@@ -26,6 +26,7 @@ public:
     void setBias(std::vector<double>& bias) {m_bias = bias;};
     void setLastBias(std::vector<double>& V_dB) {m_V_dB = V_dB;};
     void setLastBias2(std::vector<double>& S_dB) {m_S_dB = S_dB;};
+    void setDropout(double dropout_rate) {m_dropout_rate = dropout_rate;};
     ActivationFunction* getActivationFunction() const {return m_f;};
 
     Matrix multiply(const Matrix& input);
@@ -42,6 +43,7 @@ protected:
     std::vector<double> m_V_dB;
     std::vector<double> m_S_dB;
     ActivationFunction* m_f;
+    double m_dropout_rate = 0;
 };
 
 std::ostream& operator << (std::ostream& out, const Layer& layer);

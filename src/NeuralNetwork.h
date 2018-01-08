@@ -16,6 +16,7 @@ public:
     void fit(Matrix& x, Matrix& y, int epoch, const int batch_size);
     Matrix predict(Matrix& xi);
     void addLayer(int neurons_number, char const* function_name, int input_dim = 0);
+    void addDropout(double dropout_rate);
     void save(const char* file_name);
 
     std::vector<Layer*> getLayers() const {return m_layers;};

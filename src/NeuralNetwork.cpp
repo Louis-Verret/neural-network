@@ -90,6 +90,10 @@ void NeuralNetwork::addLayer(int neurons_number, char const* function_name, int 
     }
 }
 
+void NeuralNetwork::addDropout(double dropout_rate) {
+    m_layers.back()->setDropout(dropout_rate);
+}
+
 void NeuralNetwork::save(const char* file_name) {
     std::ofstream file;
     file.open(file_name);
