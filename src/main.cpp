@@ -8,6 +8,8 @@
 int main(int argc, char **argv) {
     Matrix x;
     Matrix y;
+    //readCSV("../data/csv.csv", x, y);
+
     generateSinusData(x, y, 100);
 
     Optimizer* opti = new Adam(0.001, 0.9, 0.999, 1e-8);
