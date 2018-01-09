@@ -8,7 +8,7 @@
 int main(int argc, char **argv) {
     Matrix x;
     Matrix y;
-    readCSV("../data/reg_lin_train.csv", x, y);
+    readCSV("../data/lin_reg.csv", true, x, y);
 
     //generateSinusData(x, y, 100);
 
@@ -20,9 +20,9 @@ int main(int argc, char **argv) {
     net.addLayer(1, "linear", 1);
     //net.addLayer(1, "relu");
 
-    net.fit(x, y, 1000, 10);
+    net.fit(x, y, 1000, 700);
 
-    //std::cout << net;
+    std::cout << net;
     // //net->save("../data/sinus_training.data");
     // double input = 1.57; // pi/2
     // Matrix x_test(1, 1);

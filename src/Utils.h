@@ -15,7 +15,7 @@ std::vector<double> operator/(const std::vector<double>& v, const double coeff);
 std::vector<double> sqrt(const std::vector<double>& v);
 std::ostream& operator << (std::ostream& out, const std::vector<double>& v);
 
-void readCSV(const char* file_name, Matrix& x, Matrix& y);
+void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y);
 void generateSinusData(Matrix& x, Matrix& d, int s);
 
 #endif
