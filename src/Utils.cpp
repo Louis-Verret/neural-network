@@ -94,11 +94,14 @@ std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
     return out;
 }
 
-void readCSV(const char* file_name, Matrix& x, Matrix& y) {
+void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
     std::ifstream file(file_name);
     std::string value;
     std::vector<std::vector<double> > read_x;
     std::vector<std::vector<double> > read_y;
+    if (header) {
+        getline(file, value);
+    }
     while(!getline(file, value).eof()) {
         int beg = -1;
         std::vector<double> read_xi;
