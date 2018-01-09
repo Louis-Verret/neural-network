@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <fstream>
+#include <string.h>
 
 std::vector<double> operator+(const std::vector<double>& v1, const std::vector<double>& v2) {
     if (v1.size() != v2.size()) {
@@ -90,6 +92,46 @@ std::ostream& operator << (std::ostream& out, const std::vector<double>& v) {
     }
     out << ")";
     return out;
+}
+
+void readCSV(const char* file_name, Matrix& x, Matrix& y) {
+    std::ifstream file(file_name);
+    std::string value;
+    std::vector<std::vector<double> > read_x;
+    std::vector<std::vector<double> > read_y;
+    while(!getline(file, value).eof()) {
+        int beg = -1;
+        std::vector<double> read_xi;
+        std::vector<double> read_yi;
+        for (unsigned int end = 0; end<value.length(); end++) {
+            if (value[end] == ',') {
+                //std::cout << value.substr(beg+1, end-beg-1) << std::endl;
+                double value_double_x = std::stod(value.substr(beg+1, end-beg-1));
+                read_xi.push_back(value_double_x);
+                beg = end;
+            } else if (end == value.length()-1) {
+                //std::cout << value.substr(beg+1, end-beg) << std::endl;
+                double value_double_y = std::stod(value.substr(beg+1, end-beg));
+                read_yi.push_back(value_double_y);
+                beg = end;
+            }
+        }
+        read_x.push_back(read_xi);
+        read_y.push_back(read_yi);
+    }
+    x.resize(read_x.size(), read_x[0].size());
+    y.resize(read_y.size(), read_y[0].size());
+    for(int i = 0; i<x.getN(); i++) {
+        for(int j = 0; j<x.getM(); j++) {
+            x(i, j) = read_x[i][j];
+        }
+    }
+    for(int i = 0; i<y.getN(); i++) {
+        for(int j = 0; j<y.getM(); j++) {
+            y(i, j) = read_y[i][j];
+        }
+    }
+
 }
 
 void generateSinusData(Matrix& x, Matrix& y, int s) {
