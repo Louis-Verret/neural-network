@@ -22,7 +22,9 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name) :
     m_V_dB = std::vector<double>();
     m_S_dB = std::vector<double>();
     double weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
-    if (strcmp(function_name, "sigmoid") == 0) {
+    if (strcmp(function_name, "linear") == 0) {
+        m_f = new LinearFunction();
+    } else if (strcmp(function_name, "sigmoid") == 0) {
         m_f = new SigmoidFunction();
         //weights_init = std::sqrt(6 / (neurons_number + input_dim));
     } else if (strcmp(function_name, "tanh") == 0) {

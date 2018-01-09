@@ -10,6 +10,16 @@ ActivationFunction::~ActivationFunction()
 
 }
 
+LinearFunction::LinearFunction()
+{
+
+}
+
+LinearFunction::~LinearFunction()
+{
+
+}
+
 SigmoidFunction::SigmoidFunction()
 {
 
@@ -38,6 +48,30 @@ ReLUFunction::ReLUFunction()
 ReLUFunction::~ReLUFunction()
 {
 
+}
+
+Matrix LinearFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = z(i, j);
+        }
+    }
+    return result;
+}
+
+Matrix LinearFunction::evalDev(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = 1;
+        }
+    }
+    return result;
 }
 
 Matrix SigmoidFunction::eval(const Matrix& z) const {

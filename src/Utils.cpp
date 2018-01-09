@@ -119,16 +119,16 @@ void readCSV(const char* file_name, Matrix& x, Matrix& y) {
         read_x.push_back(read_xi);
         read_y.push_back(read_yi);
     }
-    x.resize(read_x.size(), read_x[0].size());
-    y.resize(read_y.size(), read_y[0].size());
+    x.resize(read_x[0].size(), read_x.size());
+    y.resize(read_y[0].size(), read_y.size());
     for(int i = 0; i<x.getN(); i++) {
         for(int j = 0; j<x.getM(); j++) {
-            x(i, j) = read_x[i][j];
+            x(i, j) = read_x[j][i];
         }
     }
     for(int i = 0; i<y.getN(); i++) {
         for(int j = 0; j<y.getM(); j++) {
-            y(i, j) = read_y[i][j];
+            y(i, j) = read_y[j][i];
         }
     }
 
