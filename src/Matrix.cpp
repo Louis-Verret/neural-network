@@ -45,6 +45,7 @@ std::vector<double> Matrix::operator*(const std::vector<double> &vec) const {
 
 Matrix Matrix::operator*(const Matrix &mat) const {
     if (mat.getN() != m_m) {
+        std::cout << mat.getN() << " " << m_m << std::endl;
         throw std::logic_error("Invalid multiplication Mat*Mat");
     }
 
