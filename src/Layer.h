@@ -1,4 +1,4 @@
-#ifndef LAYER
+#ifndef LAYERe 
 #define LAYER
 
 #include <vector>
@@ -17,6 +17,9 @@ public:
     Matrix* getWeights() const {return m_weights;};
     std::vector<double> getBias() const {return m_bias;};
     ActivationFunction* getActivationFunction() const {return m_f;};
+
+    void setWeights(Matrix weights);
+    void setBias(std::vector<double> bias);
 
     //std::vector<double> computeOutput(const std::vector<double>& input);
     std::vector<double> multiply(const std::vector<double>& input);

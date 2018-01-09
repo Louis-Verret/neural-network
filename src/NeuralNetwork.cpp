@@ -62,9 +62,9 @@ void NeuralNetwork::save(const char* file_name) {
             else {
                 file << (*it)->getNeuronsNumber() << std::endl;
             }
+            file << (*it)->getActivationFunction()->getName() << std::endl;
             file << *((*it)->getWeights());
             file << (*it)->getBias() << std::endl;
-            file << (*it)->getActivationFunction()->getName() << std::endl;
         }
         file.close();
     }
@@ -76,17 +76,37 @@ void NeuralNetwork::load(const char* file_name) {
     FILE * file;
     file = fopen(file_name, "r");
     int n_layers; int input_dim; int neurons_number;
+    float value;
+    char activation_function_as_char[100];
     fscanf(file, "%d\n", &(n_layers));
-    std::cout << n_layers << std::endl;
     //std::cout << n_layers << std::endl;
     for (int l = 0; l < n_layers; l++) {
         if (l == 0) {
             fscanf(file, "%d %d\n", &(input_dim), &(neurons_number));
         } else {
-            fscanf(file, "%d\n", &(n_layers));
+            fscanf(file, "%d\n", &(neurons_number));
         }
-        std::cout << l << std::endl;
-        //std::cout << n_layers << std::endl;
+        fscanf(file, "%s", &(activation_function_as_char));
+        std::string activation_function_as_string(activation_function_as_char);
+
+
+        Matrix weights;
+        for (int i = 0; i <= neurons_number; i++) {
+            for (int j = 0; j < input_dim; j++) {
+                fscanf(file, "%f", &(value));
+                std::cout << value << std::endl;
+            }
+        }
+        for (int j = 0; j < neurons_number; j++) {
+            fscanf(file, "%f", &(value));
+            std::cout << value << std::endl;
+        }
+        if (l == 0) {
+            addLayer(neurons_number, activation_function_as_string, input_dim);
+        } else {
+            addLayer(neurons_number, activation_function_as_string);
+        }
+        //addLayer(neurons_number, activation_function_as_string);
     }
     fclose(file);
 }

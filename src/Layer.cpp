@@ -9,8 +9,7 @@ Layer::~Layer() {
 
 Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
  m_input_dim(input_dim),
- m_neurons_number(neurons_number)//,
- //m_weights(neurons_number, input_dim)
+ m_neurons_number(neurons_number)
 {
     m_weights = new Matrix(neurons_number, input_dim);
     m_weights->fillRandomly();
@@ -22,6 +21,14 @@ Layer::Layer(int input_dim, int neurons_number, std::string function_name) :
     if (function_name.compare("sigmoid") == 0) {
         m_f = new  SigmoidFunction();
     }
+}
+
+void Layer::setWeights(Matrix weights) {
+    //*m_weights = weights;
+}
+
+void Layer::setBias(std::vector<double> bias) {
+    m_bias = bias;
 }
 
 std::vector<double> Layer::activate(const std::vector<double>& x) {
