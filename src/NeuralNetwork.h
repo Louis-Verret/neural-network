@@ -6,13 +6,14 @@
 #include "Layer.h"
 #include "Optimizer.h"
 #include "CostFunction.h"
+#include "Metric.h"
 
 class NeuralNetwork
 {
 public:
     NeuralNetwork();
     ~NeuralNetwork();
-    NeuralNetwork(Optimizer* optimizer, char const* cost_name);
+    NeuralNetwork(Optimizer* optimizer, char const* cost_name, char const* metric_name = "none");
     void fit(Matrix& x, Matrix& y, int epoch, const int batch_size);
     Matrix predict(Matrix& xi);
     void addLayer(int neurons_number, char const* function_name, int input_dim = 0);
@@ -28,6 +29,7 @@ protected:
     std::vector<Matrix> m_a;
     Optimizer* m_optimizer;
     CostFunction* m_C;
+    Metric* m_metric = NULL;
     int input_dim;
 
     void propagate(Matrix& input);
