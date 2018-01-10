@@ -7,5 +7,6 @@
 
 void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y);
 void generateSinusData(Matrix& x, Matrix& d, int s);
+void oneHotEncoding(Matrix& y, int n_class);
 
 #endif

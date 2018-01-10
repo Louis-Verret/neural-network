@@ -62,3 +62,19 @@ void generateSinusData(Matrix& x, Matrix& y, int s) {
         y(0, i) = (y(0, i) - lower_bound_y) / (upper_bound_y - lower_bound_y);
     }
 }
+
+void oneHotEncoding(Matrix& y, int n_class) {
+    int m = y.getM();
+    Matrix y_copy = y;
+    y.resize(n_class, m);
+    for (int j = 0; j < m; j++) {
+        int val = y_copy(0, j);
+        for (int i = 0; i < n_class; i++) {
+            if (i == val) {
+                y(i, j) = 1;
+            } else {
+                y(i, j) = 0;
+            }
+        }
+    }
+}

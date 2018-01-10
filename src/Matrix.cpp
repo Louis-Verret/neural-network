@@ -189,6 +189,26 @@ Matrix Matrix::log() const {
     return result;
 }
 
+Matrix Matrix::argmax() const {
+    Matrix result(m_n, m_m);
+    for (int j = 0; j < m_m; j++) {
+        double max_val = m_coefficients[j];
+        double max_i = 0;
+        result(0, j) = 1;
+        for (int i = 1; i < m_n; i++) {
+            if (m_coefficients[i* m_m +j] <= max_val) {
+                result(i, j) = 0;
+            } else { // for the new max
+                result(max_i, j) = 0; // set old max to 0
+                max_i = i;
+                max_val = m_coefficients[i* m_m +j];
+                result(i, j) = 1; // set new max to 1
+            }
+        }
+    }
+    return result;
+}
+
 Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
     Matrix result(n, m);
     for (int i = 0; i<n; i++) {
