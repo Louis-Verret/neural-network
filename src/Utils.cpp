@@ -16,15 +16,19 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
         std::vector<double> read_xi;
         std::vector<double> read_yi;
         for (unsigned int end = 0; end<value.length(); end++) {
-            if (value[end] == ',') {
+            if (value[end] == ',' && beg != -1) {
                 //std::cout << value.substr(beg+1, end-beg-1) << std::endl;
                 double value_double_x = std::stod(value.substr(beg+1, end-beg-1));
                 read_xi.push_back(value_double_x);
                 beg = end;
+            } else if (value[end] == ',' && beg == -1) {
+                double value_double_y = std::stod(value.substr(beg+1, end-beg-1));
+                read_yi.push_back(value_double_y);
+                beg = end;
             } else if (end == value.length()-1) {
                 //std::cout << value.substr(beg+1, end-beg) << std::endl;
                 double value_double_y = std::stod(value.substr(beg+1, end-beg));
-                read_yi.push_back(value_double_y);
+                read_xi.push_back(value_double_y);
                 beg = end;
             }
         }
