@@ -12,7 +12,7 @@ CostFunction::~CostFunction()
 
 MSE::MSE()
 {
-
+    m_name = "mse";
 }
 
 MSE::~MSE()
@@ -31,7 +31,7 @@ Matrix MSE::computeErrorGradient(const Matrix& a, const Matrix& y) const {
 
 CrossEntropy::CrossEntropy()
 {
-
+    m_name = "cross_entropy";
 }
 
 CrossEntropy::~CrossEntropy()

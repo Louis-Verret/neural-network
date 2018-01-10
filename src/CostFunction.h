@@ -12,6 +12,11 @@ public:
 
     virtual Matrix computeError(const Matrix& a, const Matrix& y) const = 0;
     virtual Matrix computeErrorGradient(const Matrix& a, const Matrix& y) const = 0;
+
+    const char* getName() const {return m_name;};
+
+protected:
+    const char* m_name;
 };
 
 class MSE : public CostFunction

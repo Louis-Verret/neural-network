@@ -174,7 +174,12 @@ void NeuralNetwork::propagate(Matrix& input) {
 void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epoch_num) {
     Matrix z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
     Matrix gradient = m_C->computeErrorGradient(m_a.back(), y);
-    Matrix delta_suiv = gradient.hadamardProduct(z_curr);
+    Matrix delta_suiv;
+    if (strcmp(m_C->getName(), "cross_entropy") == 0 && strcmp(m_layers.back()->getActivationFunction()->getName(), "cross_entropy") == 0) {
+        delta_suiv = m_a.back() - y;
+    } else {
+        delta_suiv = gradient.hadamardProduct(z_curr);
+    }
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
     //layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
