@@ -11,13 +11,17 @@ NeuralNetwork::NeuralNetwork() {
     m_C = new MSE();
 }
 
-NeuralNetwork::NeuralNetwork(Optimizer* optimizer, char const* cost_name) :
+NeuralNetwork::NeuralNetwork(Optimizer* optimizer, char const* cost_name, char const* metric_name) :
  m_optimizer(optimizer)
 {
     if (strcmp(cost_name, "mean_squared_error") == 0) {
         m_C = new MSE();
     } else if (strcmp(cost_name, "cross_entropy") == 0) {
         m_C = new CrossEntropy();
+    }
+
+    if (strcmp(cost_name, "accuracy") == 0) {
+        m_metric = new CategoricalAccuracy();
     }
 }
 
@@ -37,6 +41,7 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
     int nb_batches = batches_x.size();
     for (int t = 0; t<epoch; t++) {
         double error = 0;
+        double metric = 0;
         for (int j = 0; j<nb_batches; j++) {
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
@@ -44,10 +49,16 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
             //Matrix diff = m_a.back() - batches_y[j];
             //error += diff.hadamardProduct(diff).sumElem();
             error += m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
+            if (m_metric != NULL) {
+                metric += m_metric->computeMetric(m_a.back(), batches_y[j]);
+            }
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
         std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
         std::cout << " Mean Error: " << error/batches_x.size() << std::endl;
+        if (m_metric != NULL) {
+            std::cout << "Mean Metric: " << metric/batches_x.size() << std::endl;
+        }
     }
     std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
 

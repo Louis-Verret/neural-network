@@ -10,7 +10,7 @@ public:
     Metric();
     virtual ~Metric();
 
-    virtual Matrix computeMetric(const Matrix& a, const Matrix& y) const = 0;
+    virtual double computeMetric(const Matrix& a, const Matrix& y) const = 0;
 };
 
 class CategoricalAccuracy : public Metric
@@ -20,7 +20,7 @@ public:
     CategoricalAccuracy();
     ~CategoricalAccuracy();
 
-    virtual Matrix computeMetric(const Matrix& a, const Matrix& y) const;
+    virtual double computeMetric(const Matrix& a, const Matrix& y) const;
 };
 
 #endif
