@@ -12,6 +12,7 @@ set(SOURCES
         src/ActivationFunction.cpp
         src/Utils.cpp
         src/Optimizer.cpp
-        src/CostFunction.cpp)
+        src/CostFunction.cpp
+        src/Metric.cpp)
 
 add_executable(neuralnet src/main.cpp ${SOURCES})

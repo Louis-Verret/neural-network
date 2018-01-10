@@ -36,6 +36,7 @@ public:
     static Matrix generateBitMatrix(int n, int m, double bit_rate);
     Matrix sqrt() const;
     Matrix log() const;
+    Matrix argmax() const;
     Matrix hadamardProduct(const Matrix &mat2) const;
 
 protected:
