@@ -1,6 +1,6 @@
 #include "ActivationFunction.h"
 
-ActivationFunction::ActivationFunction(std::string name) : m_name(name)
+ActivationFunction::ActivationFunction()
 {
 
 }
@@ -10,9 +10,9 @@ ActivationFunction::~ActivationFunction()
 
 }
 
-SigmoidFunction::SigmoidFunction() : ActivationFunction(std::string("sigmoid"))
+SigmoidFunction::SigmoidFunction()
 {
-
+    m_name = "sigmoid";
 }
 
 SigmoidFunction::~SigmoidFunction()
@@ -20,21 +20,100 @@ SigmoidFunction::~SigmoidFunction()
 
 }
 
-std::vector<double> SigmoidFunction::eval(std::vector<double> z) const {
-    std::vector<double> result;
-    int n = z.size();
+TanhFunction::TanhFunction()
+{
+    m_name = "tanh";
+}
+
+TanhFunction::~TanhFunction()
+{
+
+}
+
+ReLUFunction::ReLUFunction()
+{
+    m_name = "relu";
+}
+
+ReLUFunction::~ReLUFunction()
+{
+
+}
+
+Matrix SigmoidFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
     for (int i = 0; i<n ; i++) {
-        result.push_back(1.0 / (1.0 + exp(-z[i])));
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = 1.0 / (1.0 + exp(-z(i, j)));
+        }
     }
     return result;
 }
 
-std::vector<double> SigmoidFunction::evalDev(std::vector<double> z) const {
-    std::vector<double> val = eval(z);
-    std::vector<double> result;
-    int n = z.size();
+Matrix SigmoidFunction::evalDev(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
     for (int i = 0; i<n ; i++) {
-        result.push_back(val[i] * (1 - val[i]));
+        for (int j = 0; j<m ; j++) {
+            double eval = 1.0 / (1.0 + exp(-z(i, j)));
+            result(i, j) = (eval) * (1 - eval);
+        }
+    }
+    return result;
+}
+
+Matrix TanhFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = std::tanh(z(i, j));
+        }
+    }
+    return result;
+}
+
+Matrix TanhFunction::evalDev(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            double eval =  std::tanh(z(i, j));
+            result(i, j) = 1 - std::pow(eval, 2);
+        }
+    }
+    return result;
+}
+
+Matrix ReLUFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = std::max(0.0, z(i, j));
+        }
+    }
+    return result;
+}
+
+Matrix ReLUFunction::evalDev(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            if (z(i, j) > 0) {
+                result(i, j) = 1;
+            } else {
+                result(i, j) = 0;
+            }
+        }
     }
     return result;
 }

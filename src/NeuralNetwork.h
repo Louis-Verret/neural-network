@@ -4,15 +4,19 @@
 #include <vector>
 
 #include "Layer.h"
+#include "Optimizer.h"
+#include "CostFunction.h"
 
 class NeuralNetwork
 {
 public:
     NeuralNetwork();
     ~NeuralNetwork();
-    void fit(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int epoch, const double learning_rate);
-    std::vector<double> predict(std::vector<double>& xi);
-    void addLayer(int neurons_number, std::string function_name, int input_dim = 0);
+    NeuralNetwork(Optimizer* optimizer, char const* cost_name);
+    void fit(Matrix& x, Matrix& y, int epoch, const int batch_size);
+    Matrix predict(Matrix& xi);
+    void addLayer(int neurons_number, char const* function_name, int input_dim = 0);
+    void addDropout(double dropout_rate);
     void save(const char* file_name);
     void load(const char* file_name);
 
@@ -20,14 +24,15 @@ public:
 
 protected:
     std::vector<Layer*> m_layers;
-    std::vector<std::vector<double> > m_z;
-    std::vector<std::vector<double> > m_a;
+    std::vector<Matrix> m_z;
+    std::vector<Matrix> m_a;
+    Optimizer* m_optimizer;
+    CostFunction* m_C;
     int input_dim;
-    std::vector<double> o;
 
-    std::vector<double> computeGradient(const std::vector<double>& di);
-    void propagate(const std::vector<double>& input);
-    void backpropagate(const std::vector<double>& di, const double learning_rate);
+    void propagate(Matrix& input);
+    void backpropagate(const Matrix& y, const int batch_size, int epoch_num);
+    void separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size);
 };
 
 std::ostream& operator << (std::ostream& out, const NeuralNetwork& net);

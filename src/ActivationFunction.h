@@ -3,22 +3,22 @@
 
 #include <vector>
 #include <cmath>
-#include <string>
+#include "Matrix.h"
 
 class ActivationFunction
 {
 public:
 
-    ActivationFunction(std::string name);
-    ~ActivationFunction();
+    ActivationFunction();
+    virtual ~ActivationFunction();
 
-    std::string getName() const {return m_name;};
+    virtual Matrix eval(const Matrix& z) const = 0;
+    virtual Matrix evalDev(const Matrix& z) const = 0;
 
-    virtual std::vector<double> eval(std::vector<double> z) const = 0;
-    virtual std::vector<double> evalDev(std::vector<double> z) const = 0;
+    const char* getName() const {return m_name;};
 
-    std::string m_name;
-
+protected:
+    const char* m_name;
 };
 
 
@@ -30,8 +30,30 @@ public:
     SigmoidFunction();
     ~SigmoidFunction();
 
-    virtual std::vector<double> eval(std::vector<double> z) const;
-    virtual std::vector<double> evalDev(std::vector<double> z) const;
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
+};
+
+class TanhFunction : public  ActivationFunction
+{
+public:
+
+    TanhFunction();
+    ~TanhFunction();
+
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
+};
+
+class ReLUFunction : public  ActivationFunction
+{
+public:
+
+    ReLUFunction();
+    ~ReLUFunction();
+
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
 };
 
 #endif // ACTIVATION_FUNCTION_H

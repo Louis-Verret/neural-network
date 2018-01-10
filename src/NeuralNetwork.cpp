@@ -2,41 +2,84 @@
 #include "Utils.h"
 
 #include <iostream>
+#include <cstring>
 #include <fstream>
 #include <string>
 
 NeuralNetwork::NeuralNetwork() {
+    m_optimizer = new SGD();
+    m_C = new MSE();
+}
+
+NeuralNetwork::NeuralNetwork(Optimizer* optimizer, char const* cost_name) :
+ m_optimizer(optimizer)
+{
+    if (strcmp(cost_name, "mean_squared_error") == 0) {
+        m_C = new MSE();
+    } else if (strcmp(cost_name, "cross_entropy") == 0) {
+        m_C = new CrossEntropy();
+    }
 }
 
 NeuralNetwork::~NeuralNetwork() {
+    delete m_C;
+    delete m_optimizer;
     int nb = m_layers.size();
     for (int i=0; i<nb; i++) {
         delete m_layers[i];
     }
 }
 
-void NeuralNetwork::fit(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& d, int epoch, const double learning_rate) {
-    int s = x.size();
-    for (int i = 0; i<epoch; i++) {
+void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
+    std::vector<Matrix> batches_x;
+    std::vector<Matrix> batches_y;
+    separateDataInBatches(x, y, batches_x, batches_y, batch_size);
+    int nb_batches = batches_x.size();
+    for (int t = 0; t<epoch; t++) {
         double error = 0;
-        for (int j = 0; j<s; j++) {
-            propagate(x[j]);
-            backpropagate(d[j], learning_rate);
-            //std::cout << "Predicted/Label: " << y << " " << d[j] << std::endl;
-            error += (d[j][0] - m_a.back()[0]) * (d[j][0] -  m_a.back()[0]);
+        for (int j = 0; j<nb_batches; j++) {
+            propagate(batches_x[j]);
+            backpropagate(batches_y[j], batch_size, t+1);
+
+            //Matrix diff = m_a.back() - batches_y[j];
+            //error += diff.hadamardProduct(diff).sumElem();
+            error += m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
+            //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
-        std::cout << i << " Error: " << error << std::endl;
+        std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
+        std::cout << " Mean Error: " << error/batches_x.size() << std::endl;
     }
-    std::cout << "Predicted/Label: " << m_a.back()[0] << " " << d[s-1][0] << std::endl;
+    std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
 
 }
 
-std::vector<double> NeuralNetwork::predict(std::vector<double>& xi) {
+void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size) {
+    for (int i = 0; i<x.getM(); i+=batch_size) {
+        int bound = 0;
+        if (i + batch_size < x.getM()) {
+            bound = batch_size;
+        } else {
+            bound = x.getM() - i;
+        }
+        Matrix xi(x.getN(), bound);
+        Matrix yi(y.getN(), bound);
+        for (int k = 0; k<bound; k++) {
+            for (int j = 0; j<x.getN(); j++) {
+                xi(j, k) = x(j, i + k);
+                yi(j, k) = y(j, i + k);
+            }
+        }
+        batches_x.push_back(xi);
+        batches_y.push_back(yi);
+    }
+}
+
+Matrix NeuralNetwork::predict(Matrix& xi) {
     propagate(xi);
     return m_a.back();
 }
 
-void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int input_dim) {
+void NeuralNetwork::addLayer(int neurons_number, char const* function_name, int input_dim) {
     if (input_dim != 0) { // for the first input layer
         //std::cout << "Creating first layer" << std::endl;
         Layer* layer = new Layer(input_dim, neurons_number, function_name);
@@ -48,6 +91,10 @@ void NeuralNetwork::addLayer(int neurons_number, std::string function_name, int 
         Layer* layer = new Layer(input_dim, neurons_number, function_name);
         m_layers.push_back(layer);
     }
+}
+
+void NeuralNetwork::addDropout(double dropout_rate) {
+    m_layers.back()->setDropout(dropout_rate);
 }
 
 void NeuralNetwork::save(const char* file_name) {
@@ -63,7 +110,7 @@ void NeuralNetwork::save(const char* file_name) {
                 file << (*it)->getNeuronsNumber() << std::endl;
             }
             file << (*it)->getActivationFunction()->getName() << std::endl;
-            file << *((*it)->getWeights());
+            file << (*it)->getWeights();
             file << (*it)->getBias() << std::endl;
         }
         file.close();
@@ -83,91 +130,66 @@ void NeuralNetwork::load(const char* file_name) {
     for (int l = 0; l < n_layers; l++) {
         if (l == 0) {
             fscanf(file, "%d %d\n", &(input_dim), &(neurons_number));
+            //std::cout << neurons_number << std::endl;
         } else {
+            input_dim = neurons_number;
             fscanf(file, "%d\n", &(neurons_number));
         }
-        fscanf(file, "%s", &(activation_function_as_char));
-        std::string activation_function_as_string(activation_function_as_char);
+        fscanf(file, "%s", activation_function_as_char);
+        //std::cout << activation_function_as_char << std::endl;
+        Matrix weights(neurons_number, input_dim);
 
-
-        Matrix weights;
-        for (int i = 0; i <= neurons_number; i++) {
+        for (int i = 0; i < neurons_number; i++) {
             for (int j = 0; j < input_dim; j++) {
                 fscanf(file, "%f", &(value));
-                std::cout << value << std::endl;
+                weights(i, j) = value;
             }
         }
+        Vector bias(neurons_number);
         for (int j = 0; j < neurons_number; j++) {
             fscanf(file, "%f", &(value));
-            std::cout << value << std::endl;
+            bias(j) = value;
         }
         if (l == 0) {
-            addLayer(neurons_number, activation_function_as_string, input_dim);
+            addLayer(neurons_number, activation_function_as_char, input_dim);
         } else {
-            addLayer(neurons_number, activation_function_as_string);
+            addLayer(neurons_number, activation_function_as_char);
         }
-        //addLayer(neurons_number, activation_function_as_string);
+        getLayers().back()->setWeights(weights);
+        getLayers().back()->setBias(bias);
     }
     fclose(file);
 }
 
-void NeuralNetwork::propagate(const std::vector<double>& input) {
-    //std::vector<double> x = input;
-    //std::vector<double> y;
+void NeuralNetwork::propagate(Matrix& input) {
     m_a.clear();
     m_z.clear();
     m_a.push_back(input);
     for (std::vector<Layer*>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
-        // std::cout << it->getNeuronsNumber() << std::endl;
-        // std::cout << it->getInputDim() << std::endl;
-        //y = it->computeOutput(x);
-        //x = y;
         m_z.push_back((*it)->add((*it)->multiply(m_a.back())));
         m_a.push_back((*it)->activate(m_z.back()));
     }
-
 }
 
-std::vector<double> NeuralNetwork::computeGradient(const std::vector<double>& di) {
-    std::vector<double> gradient;
-    std::vector<double> a_L = m_a.back();
-    for (int j = 0; j<di.size(); j++) {
-        gradient.push_back(a_L[j] - di[j]);
-    }
-    return gradient;
-}
-
-std::vector<double> operator*(const std::vector<double>& v1, const std::vector<double>& v2) {
-    if (v1.size() != v2.size()) {
-        perror("Invalid size for Hadamard product");
-    }
-    std::vector<double> res;
-    for (int i = 0; i<v1.size(); i++) {
-        res.push_back(v1[i] * v2[i]);
-    }
-    return res;
-}
-
-void NeuralNetwork::backpropagate(const std::vector<double>& di, const double learning_rate) {
-
-    std::vector<double> z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
-    std::vector<double> gradient = computeGradient(di);
-    //std::cout << "size: " << gradient.size() << " " << z_curr.size() << std::endl;
-    std::vector<double> delta_suiv = gradient * z_curr;
-    std::vector<double> delta_curr;
+void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epoch_num) {
+    Matrix z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
+    Matrix gradient = m_C->computeErrorGradient(m_a.back(), y);
+    Matrix delta_suiv = gradient.hadamardProduct(z_curr);
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
-    layer->updateWeights(m_a[L-1], delta_suiv, learning_rate);
-    layer->updateBias(delta_suiv, learning_rate);
+    //layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
+    //layer->updateBias(delta_suiv, learning_rate, batch_size, momentum);
+    m_optimizer->updateWeights(layer, m_a[L-1], delta_suiv, batch_size, epoch_num);
+    m_optimizer->updateBias(layer, delta_suiv, batch_size, epoch_num);
 
     for(int l = L-2; l >= 0; l--) {
         Layer* layer = m_layers[l];
         Layer* layer_suiv = m_layers[l+1];
-        //std::cout << "size M init: " << layer->getWeights()->getN() << " " << layer->getWeights()->getM()  << std::endl;
-        //std::cout << "size: " << layer->getWeights()->transpose().getM() << " " << delta_suiv.size() << std::endl;
-        delta_curr = (layer_suiv->getWeights()->transpose() * delta_suiv) * layer->getActivationFunction()->evalDev(m_z[l]);
-        layer->updateWeights(m_a[l], delta_curr, learning_rate);
-        layer->updateBias(delta_curr, learning_rate);
+        Matrix delta_curr = (layer_suiv->getWeights().transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
+        //layer->updateWeights(m_a[l], delta_curr, learning_rate, batch_size, momentum);
+        //layer->updateBias(delta_curr, learning_rate, batch_size, momentum);
+        m_optimizer->updateWeights(layer, m_a[l], delta_curr, batch_size, epoch_num);
+        m_optimizer->updateBias(layer, delta_curr, batch_size, epoch_num);
         delta_suiv = delta_curr;
     }
 }
