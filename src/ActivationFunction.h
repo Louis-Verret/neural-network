@@ -22,6 +22,16 @@ protected:
 };
 
 
+class LinearFunction : public  ActivationFunction
+{
+public:
+
+    LinearFunction();
+    ~LinearFunction();
+
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
+};
 
 class SigmoidFunction : public  ActivationFunction
 {
