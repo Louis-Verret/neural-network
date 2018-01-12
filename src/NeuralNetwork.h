@@ -15,6 +15,7 @@ public:
     ~NeuralNetwork();
     NeuralNetwork(Optimizer* optimizer, char const* cost_name, char const* metric_name = "none");
     void fit(Matrix& x, Matrix& y, int epoch, const int batch_size);
+    void validate(Matrix& x, Matrix& y);
     Matrix predict(Matrix& xi);
     void addLayer(int neurons_number, char const* function_name, int input_dim = 0);
     void addDropout(double dropout_rate);

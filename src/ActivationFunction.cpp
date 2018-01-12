@@ -165,6 +165,7 @@ Matrix ReLUFunction::evalDev(const Matrix& z) const {
 
 
 Matrix SoftmaxFunction::eval(const Matrix& z) const {
+    // std::cout << z << std::endl;
     int n = z.getN();
     int m = z.getM();
     Matrix result(n, m);
