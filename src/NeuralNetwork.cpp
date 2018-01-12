@@ -20,7 +20,7 @@ NeuralNetwork::NeuralNetwork(Optimizer* optimizer, char const* cost_name, char c
         m_C = new CrossEntropy();
     }
 
-    if (strcmp(cost_name, "accuracy") == 0) {
+    if (strcmp(metric_name, "accuracy") == 0) {
         m_metric = new CategoricalAccuracy();
     }
 }
@@ -45,15 +45,14 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
         for (int j = 0; j<nb_batches; j++) {
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
-
-            Matrix diff = m_a.back() - batches_y[j];
-            error += diff.hadamardProduct(diff).sumElem();
-            error += m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
-            if (m_metric != NULL) {
-                metric += m_metric->computeMetric(m_a.back(), batches_y[j]);
-            }
+            double batch_error = m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
+            error += batch_error;
+            // if (m_metric != NULL) {
+            //     double batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
+            //     metric += batch_metric;
+            //     std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
+            // }
             // std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
-            // std::cout << " Error: " << error << " Accuracy: " << metric << std::endl;
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
         std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;

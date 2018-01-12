@@ -27,8 +27,8 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
                 beg = end;
             } else if (end == value.length()-1) {
                 //std::cout << value.substr(beg+1, end-beg) << std::endl;
-                double value_double_y = std::stod(value.substr(beg+1, end-beg));
-                read_xi.push_back(value_double_y);
+                double value_double_x = std::stod(value.substr(beg+1, end-beg));
+                read_xi.push_back(value_double_x);
                 beg = end;
             }
         }
@@ -39,7 +39,7 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
     y.resize(read_y[0].size(), read_y.size());
     for(int i = 0; i<x.getN(); i++) {
         for(int j = 0; j<x.getM(); j++) {
-            x(i, j) = read_x[j][i];
+            x(i, j) = read_x[j][i]/255;
         }
     }
     for(int i = 0; i<y.getN(); i++) {
