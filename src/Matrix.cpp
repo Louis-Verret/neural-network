@@ -226,7 +226,8 @@ Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
 
 void Matrix::fillRandomly() {
     for (int i = 0; i < m_m * m_n; i++) {
-        double r = ((double) rand() / (double) RAND_MAX);
+        double weights_init = 4 * std::sqrt(6 / (m_n + m_m));
+        double r = ((double) rand() / (double) RAND_MAX) * 2 * weights_init - weights_init;
         m_coefficients[i] = r;
     }
 }

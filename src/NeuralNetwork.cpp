@@ -47,12 +47,12 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
             backpropagate(batches_y[j], batch_size, t+1);
             double batch_error = m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
             error += batch_error;
-            // if (m_metric != NULL) {
-            //     double batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
-            //     metric += batch_metric;
-            //     std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
-            // }
-            // std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
+            std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
+            if (m_metric != NULL) {
+                double batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
+                metric += batch_metric;
+                std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
+            }
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
         std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
@@ -85,6 +85,14 @@ void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matr
         }
         batches_x.push_back(xi);
         batches_y.push_back(yi);
+    }
+}
+
+void NeuralNetwork::validate(Matrix& x, Matrix& y) {
+    Matrix y_predict = predict(x);
+    if (m_metric != NULL) {
+        double metric = m_metric->computeMetric(y_predict, y);
+        std::cout << "Metric: " << metric << std::endl;
     }
 }
 
