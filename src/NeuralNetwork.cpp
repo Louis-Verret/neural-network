@@ -46,12 +46,14 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
 
-            //Matrix diff = m_a.back() - batches_y[j];
-            //error += diff.hadamardProduct(diff).sumElem();
+            Matrix diff = m_a.back() - batches_y[j];
+            error += diff.hadamardProduct(diff).sumElem();
             error += m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
             if (m_metric != NULL) {
                 metric += m_metric->computeMetric(m_a.back(), batches_y[j]);
             }
+            // std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
+            // std::cout << " Error: " << error << " Accuracy: " << metric << std::endl;
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
         std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
@@ -60,7 +62,7 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
             std::cout << "Mean Metric: " << metric/batches_x.size() << std::endl;
         }
     }
-    std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
+    //std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
 
 }
 
@@ -77,6 +79,8 @@ void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matr
         for (int k = 0; k<bound; k++) {
             for (int j = 0; j<x.getN(); j++) {
                 xi(j, k) = x(j, i + k);
+            }
+            for (int j = 0; j<y.getN(); j++) {
                 yi(j, k) = y(j, i + k);
             }
         }
@@ -183,9 +187,14 @@ void NeuralNetwork::propagate(Matrix& input) {
 }
 
 void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epoch_num) {
-    Matrix z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
-    Matrix gradient = m_C->computeErrorGradient(m_a.back(), y);
-    Matrix delta_suiv = gradient.hadamardProduct(z_curr);
+    Matrix delta_suiv;
+    if (strcmp(m_C->getName(), "cross_entropy") == 0 && strcmp(m_layers.back()->getActivationFunction()->getName(), "softmax") == 0) {
+        delta_suiv = m_a.back() - y;
+    } else {
+        Matrix z_curr = m_layers.back()->getActivationFunction()->evalDev(m_z.back());
+        Matrix gradient = m_C->computeErrorGradient(m_a.back(), y);
+        delta_suiv = gradient.hadamardProduct(z_curr);
+    }
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
     //layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
