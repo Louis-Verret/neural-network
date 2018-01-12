@@ -50,6 +50,16 @@ ReLUFunction::~ReLUFunction()
 
 }
 
+SoftmaxFunction::SoftmaxFunction()
+{
+    m_name = "softmax";
+}
+
+SoftmaxFunction::~SoftmaxFunction()
+{
+
+}
+
 Matrix LinearFunction::eval(const Matrix& z) const {
     int n = z.getN();
     int m = z.getM();
@@ -150,4 +160,26 @@ Matrix ReLUFunction::evalDev(const Matrix& z) const {
         }
     }
     return result;
+}
+
+
+Matrix SoftmaxFunction::eval(const Matrix& z) const {
+    int n = z.getN();
+    int m = z.getM();
+    Matrix result(n, m);
+    Vector sum_expo(m, 0);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            sum_expo(j) += exp(z(i, j));
+        }
+    }
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = exp(z(i, j)) / sum_expo(j);
+        }
+    }
+    return result;
+}
+
+Matrix SoftmaxFunction::evalDev(const Matrix& z) const {
 }

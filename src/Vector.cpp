@@ -24,13 +24,13 @@ Vector::Vector(int n, double val) :
 const double &Vector::operator()(int i) const {
     if (i < m_n)
         return m_coefficients[i];
-    throw std::logic_error("Invalid element");
+    throw std::logic_error("Invalid vector element");
 }
 
 double &Vector::operator()(int i) {
     if (i < m_n)
         return m_coefficients[i];
-    throw std::logic_error("Invalid element");
+    throw std::logic_error("Invalid vector element");
 }
 
 Vector Vector::operator+(const Vector &v) {

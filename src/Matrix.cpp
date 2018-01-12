@@ -18,13 +18,13 @@ Matrix::Matrix(int n, int m) :
 const double &Matrix::operator()(int i, int j) const {
     if (i < m_n && j < m_m)
         return m_coefficients[i * m_m + j];
-    throw std::logic_error("Invalid element");
+    throw std::logic_error("Invalid matrix element");
 }
 
 double &Matrix::operator()(int i, int j) {
     if (i < m_n && j < m_m)
         return m_coefficients[i * m_m + j];
-    throw std::logic_error("Invalid element");
+    throw std::logic_error("Invalid matrix element");
 }
 
 Vector Matrix::operator*(const Vector &vec) const {
@@ -45,7 +45,7 @@ Vector Matrix::operator*(const Vector &vec) const {
 
 Matrix Matrix::operator*(const Matrix &mat) const {
     if (mat.getN() != m_m) {
-        std::cout << mat.getN() << " " << m_m << std::endl;
+        // std::cout << mat.getN() << " " << m_m << std::endl;
         throw std::logic_error("Invalid multiplication Mat*Mat");
     }
 

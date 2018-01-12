@@ -24,7 +24,6 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name, bool 
         m_S_dW.fillWithZero();
         m_bias.fillRandomly();
         m_V_dB.fillWithZero();
-        std::cout << m_V_dB << std::endl;
         m_S_dB.fillWithZero();
         // double weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
         // for (int i = 0; i < m_neurons_number; i++) {
@@ -42,6 +41,9 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name, bool 
         //weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
     } else if (strcmp(function_name, "relu") == 0) {
         m_f = new ReLUFunction();
+        //weights_init = std::sqrt(12 / (neurons_number + input_dim));
+    } else if (strcmp(function_name, "softmax") == 0) {
+        m_f = new SoftmaxFunction();
         //weights_init = std::sqrt(12 / (neurons_number + input_dim));
     }
 }

@@ -66,4 +66,15 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+class SoftmaxFunction : public  ActivationFunction
+{
+public:
+
+    SoftmaxFunction();
+    ~SoftmaxFunction();
+
+    virtual Matrix eval(const Matrix& z) const;
+    virtual Matrix evalDev(const Matrix& z) const;
+};
+
 #endif // ACTIVATION_FUNCTION_H
