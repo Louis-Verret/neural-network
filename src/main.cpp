@@ -17,26 +17,28 @@ int main(int argc, char **argv) {
     oneHotEncoding(y_test, 10);
     //generateSinusData(x, y, 100);
 
-    Optimizer* opti = new Adam(0.01, 0.9, 0.999, 1e-8);
-    // Optimizer* opti = new SGD(1, 0.9);
+    Optimizer* opti = new Adam(0.001, 0.9, 0.999, 1e-8);
+    //Optimizer* opti = new SGD(0.1, 0.9);
 
     NeuralNetwork net(opti, "cross_entropy", "accuracy");
 
-    net.addLayer(300, "relu", 784);
-    net.addLayer(10, "softmax");
+    // net.addLayer(300, "relu", 784);
+    // net.addLayer(150, "relu");
+    // net.addLayer(10, "softmax");
     // net.addLayer(5, "sigmoid", 1);
     // net.addLayer(5, "sigmoid");
     // net.addLayer(1, "relu");
     //
-    // // net.load("../data/sinus_training.data");
+    net.load("../data/mnist_model.data");
     //
-    std::cout << "Fitting the data" << std::endl;
-    net.fit(x_train, y_train, 3, 128);
+    // std::cout << "Fitting the data" << std::endl;
+    // net.fit(x_train, y_train, 3, 128);
 
     std::cout << "Validating the model" << std::endl;
     net.validate(x_test, y_test);
 
-    // //net.save("../data/sinus_training.data");
+    //std::cout << "Saving the model" << std::endl;
+    //net.save("../data/mnist_model.data");
     // double input = -1.57/3; // pi/2
     // Matrix x_test(1, 1);
     // x_test(0, 0) = (input + 4)/8;
