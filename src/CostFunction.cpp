@@ -1,4 +1,5 @@
 #include "CostFunction.h"
+#include <iostream>
 
 CostFunction::CostFunction()
 {

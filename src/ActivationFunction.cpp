@@ -1,4 +1,5 @@
 #include "ActivationFunction.h"
+#include <iostream>
 
 ActivationFunction::ActivationFunction()
 {
@@ -170,12 +171,12 @@ Matrix SoftmaxFunction::eval(const Matrix& z) const {
     Vector sum_expo(m, 0);
     for (int i = 0; i<n ; i++) {
         for (int j = 0; j<m ; j++) {
-            sum_expo(j) += exp(z(i, j));
+            sum_expo(j) += std::exp(z(i, j));
         }
     }
     for (int i = 0; i<n ; i++) {
         for (int j = 0; j<m ; j++) {
-            result(i, j) = exp(z(i, j)) / sum_expo(j);
+            result(i, j) = std::exp(z(i, j)) / sum_expo(j);
         }
     }
     return result;
