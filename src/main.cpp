@@ -1,11 +1,14 @@
 #include "NeuralNetwork.h"
 #include "Utils.h"
 #include "Optimizer.h"
+#include <omp.h>
+#include "MatrixPar.h"
 
 #include <iostream>
 
 
 int main(int argc, char **argv) {
+    /*
     Matrix x_train;
     Matrix y_train;
     std::cout << "Preprocessing the data" << std::endl;
@@ -44,6 +47,32 @@ int main(int argc, char **argv) {
     // std::cout << "sin(-pi/6): " << 2*output(0,0) -1 << std::endl;
 
     //std::cout << net << std::endl;
+
+     */
+
+    double start_time = omp_get_wtime();
+    Matrix m1 = Matrix(500, 500);
+    m1 = 1 - m1;
+    Matrix m2 = Matrix(500, 500);
+    m2 = 2 - m2;
+    for (int i=0; i<10; i++) {
+        m2 = m1 * m2;
+    }
+    double run_time = omp_get_wtime() - start_time;
+    printf("\n Matrix seq multiplications in %lf seconds\n",run_time);
+    std::cout << m2(0,0) << std::endl;
+
+    start_time = omp_get_wtime();
+    MatrixPar m3 = MatrixPar(500, 500);
+    m3 = 1 - m3;
+    MatrixPar m4 = MatrixPar(500, 500);
+    m4 = 2 - m4;
+    for (int i=0; i<10; i++) {
+        m4 = m3 * m4;
+    }
+    run_time = omp_get_wtime() - start_time;
+    printf("\n Matrix // multiplications in %lf seconds\n",run_time);
+    std::cout << m4(0,0) << std::endl;
 
     return 0;
 }
