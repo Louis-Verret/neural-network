@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include <iostream>
 #include <cmath>
+#include "omp.h"
 #include <stdexcept>
 
 Matrix::Matrix() : m_n(0), m_m(0) {
@@ -28,37 +29,48 @@ double &Matrix::operator()(int i, int j) {
 }
 
 Vector Matrix::operator*(const Vector &vec) const {
-    if ((int) vec.getN() != m_m) {
+    if (vec.getN() != m_m) {
         throw std::logic_error("Invalid multiplication Mat*Vec");
     }
 
     Vector vec_s(m_n);
-    for (int i = 0; i < m_n; i++) {
-        double vec_s_i = 0;
-        for (int j = 0; j < m_m; j++) {
-            vec_s_i += m_coefficients[i * m_m + j] * vec(j);
+    int j = 0; double vec_s_i = 0;
+    #pragma omp parallel shared(vec, vec_s) private(j, vec_s_i)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            vec_s_i = 0;
+            for (j = 0; j < m_m; j++) {
+                vec_s_i += m_coefficients[i * m_m + j] * vec(j);
+            }
+            vec_s(i) = vec_s_i;
         }
-        vec_s(i) = vec_s_i;
     }
     return vec_s;
 }
 
 Matrix Matrix::operator*(const Matrix &mat) const {
     if (mat.getN() != m_m) {
-        // std::cout << mat.getN() << " " << m_m << std::endl;
         throw std::logic_error("Invalid multiplication Mat*Mat");
     }
 
+    int m = mat.getM();
     Matrix mat_s(m_n, mat.getM());
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < mat.getM(); j++) {
-            double mat_s_ij = 0;
-            for (int k = 0; k < m_m; k++) {
-                mat_s_ij += m_coefficients[i * m_m + k] * mat(k, j);
+    int j = 0; int k = 0; double mat_s_ij = 0;
+    Matrix tm = mat.transpose();
+    #pragma omp parallel shared(tm, mat_s) private(j, k, mat_s_ij)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            for (j = 0; j < m; j++) {
+                mat_s_ij = 0;
+                for (k = 0; k < m_m; k++) {
+                    mat_s_ij += m_coefficients[i * m_m + k] * tm(j, k);
+                }
+                mat_s(i, j) = mat_s_ij;
             }
-            mat_s(i, j) = mat_s_ij;
         }
-    }
+    };
     return mat_s;
 }
 
@@ -68,9 +80,14 @@ Matrix Matrix::operator+(const Vector &vec) const {
     }
 
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] + vec(i);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] + vec(i);
+            }
         }
     }
     return result;
@@ -82,9 +99,14 @@ Matrix Matrix::operator-(const Matrix& mat) const {
     }
 
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] - mat(i,j);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] - mat(i,j);
+            }
         }
     }
     return result;
@@ -94,11 +116,15 @@ Matrix Matrix::operator+(const Matrix& mat) const {
     if (m_n != mat.getN() || m_m != mat.getM()) {
         throw std::logic_error("Invalid addition Mat+Mat");
     }
-
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] + mat(i,j);
+    int i, j;
+    #pragma omp parallel shared(result, mat) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] + mat(i,j);
+            }
         }
     }
     return result;
@@ -106,9 +132,14 @@ Matrix Matrix::operator+(const Matrix& mat) const {
 
 Matrix Matrix::operator+(const double coeff) const {
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] + coeff;
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] + coeff;
+            }
         }
     }
     return result;
@@ -120,9 +151,14 @@ Matrix Matrix::operator/(const Matrix& mat) const {
     }
 
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] / mat(i,j);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] / mat(i,j);
+            }
         }
     }
     return result;
@@ -131,9 +167,14 @@ Matrix Matrix::operator/(const Matrix& mat) const {
 
 Matrix Matrix::operator/(const double coeff) const {
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j]/coeff;
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j]/coeff;
+            }
         }
     }
     return result;
@@ -141,6 +182,7 @@ Matrix Matrix::operator/(const double coeff) const {
 
 double Matrix::sumElem() const {
     double sum = 0;
+    #pragma omp parallel for reduction (+:sum)
     for (int i = 0; i < m_n; i++) {
         for (int j = 0; j < m_m; j++) {
             sum += m_coefficients[i * m_m + j];
@@ -155,9 +197,14 @@ Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     }
 
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            result(i, j) = m_coefficients[i * m_m + j] * mat(i, j);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                result(i, j) = m_coefficients[i * m_m + j] * mat(i, j);
+            }
         }
     }
     return result;
@@ -165,12 +212,17 @@ Matrix Matrix::hadamardProduct(const Matrix &mat) const {
 
 Matrix Matrix::sqrt() const {
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            if (m_coefficients[i* m_m +j] < 0) {
-                throw std::logic_error("Invalid Matrix sqrt");
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                if (m_coefficients[i* m_m +j] < 0) {
+                    throw std::logic_error("Invalid Matrix sqrt");
+                }
+                result(i, j) = std::sqrt(m_coefficients[i * m_m + j]);
             }
-            result(i, j) = std::sqrt(m_coefficients[i * m_m + j]);
         }
     }
     return result;
@@ -178,12 +230,17 @@ Matrix Matrix::sqrt() const {
 
 Matrix Matrix::log() const {
     Matrix result(m_n, m_m);
-    for (int i = 0; i < m_n; i++) {
-        for (int j = 0; j < m_m; j++) {
-            if (m_coefficients[i* m_m +j] <= 0) {
-                throw std::logic_error("Invalid Matrix log");
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < m_n; i++) {
+            for (j = 0; j < m_m; j++) {
+                if (m_coefficients[i* m_m +j] <= 0) {
+                    throw std::logic_error("Invalid Matrix log");
+                }
+                result(i, j) = std::log(m_coefficients[i * m_m + j]);
             }
-            result(i, j) = std::log(m_coefficients[i * m_m + j]);
         }
     }
     return result;
@@ -191,18 +248,25 @@ Matrix Matrix::log() const {
 
 Matrix Matrix::argmax() const {
     Matrix result(m_n, m_m);
-    for (int j = 0; j < m_m; j++) {
-        double max_val = m_coefficients[j];
-        double max_i = 0;
-        result(0, j) = 1;
-        for (int i = 1; i < m_n; i++) {
-            if (m_coefficients[i* m_m +j] <= max_val) {
-                result(i, j) = 0;
-            } else { // for the new max
-                result(max_i, j) = 0; // set old max to 0
-                max_i = i;
-                max_val = m_coefficients[i* m_m +j];
-                result(i, j) = 1; // set new max to 1
+    int i, j;
+    double max_val;
+    double max_i;
+    #pragma omp parallel shared(result) private(i, j, max_val, max_i)
+    {
+        #pragma omp for
+        for (j = 0; j < m_m; j++) {
+            max_val = m_coefficients[j];
+            max_i = 0;
+            result(0, j) = 1;
+            for (i = 1; i < m_n; i++) {
+                if (m_coefficients[i* m_m +j] <= max_val) {
+                    result(i, j) = 0;
+                } else { // for the new max
+                    result(max_i, j) = 0; // set old max to 0
+                    max_i = i;
+                    max_val = m_coefficients[i* m_m +j];
+                    result(i, j) = 1; // set new max to 1
+                }
             }
         }
     }
@@ -211,13 +275,19 @@ Matrix Matrix::argmax() const {
 
 Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
     Matrix result(n, m);
-    for (int i = 0; i<n; i++) {
-        for (int j =0; j<m; j++) {
-            double r = ((double) rand() / (double) RAND_MAX);
-            if (r < bit_rate) {
-                result(i, j) = 1;
-            } else {
-                result(i, j) = 0;
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        unsigned int seed = omp_get_thread_num() * time(NULL);
+        #pragma omp for
+        for (i = 0; i<n; i++) {
+            for (j =0; j<m; j++) {
+                double r = ((double) rand_r(&seed) / (double) RAND_MAX);
+                if (r < bit_rate) {
+                    result(i, j) = 1;
+                } else {
+                    result(i, j) = 0;
+                }
             }
         }
     }
@@ -225,23 +295,50 @@ Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
 }
 
 void Matrix::fillRandomly() {
-    for (int i = 0; i < m_m * m_n; i++) {
-        double weights_init = std::sqrt(12 / (m_n + m_m));
-        double r = ((double) rand() / (double) RAND_MAX) * 2 * weights_init - weights_init;
-        m_coefficients[i] = r;
+    int i;
+    double weights_init;
+    #pragma omp parallel private(i, weights_init)
+    {
+        weights_init = std::sqrt(12.0 / (m_n + m_m));;
+        unsigned int seed = omp_get_thread_num() * time(NULL);
+        #pragma omp for
+        for (i = 0; i < m_m * m_n; i++) {
+            double r = ((double) rand_r(&seed) / (double) RAND_MAX) * 2 * weights_init - weights_init;
+            m_coefficients[i] = r;
+        }
     }
 }
 
 void Matrix::fillWithZero() {
-    for (int i = 0; i < m_m * m_n; i++) {
-        m_coefficients[i] = 0;
+    int i;
+    #pragma omp parallel private(i)
+    {
+        #pragma omp for
+        for (i = 0; i < m_m * m_n; i++) {
+            m_coefficients[i] = 0;
+        }
     }
 }
 
-Matrix Matrix::transpose() const { //not cache aware
+Matrix Matrix::transpose() const { //cache aware
     Matrix transpose(m_m, m_n);
-    for (int i = 0; i<m_m; i++) {
-        for (int j =0; j<m_n; j++) {
+    // int blocksize = 16;
+    // int i,j, row, col;
+    // #pragma omp parallel shared(transpose) private(i, j, row, col)
+    // {
+    //     #pragma omp for
+    //     for (i = 0; i < m_n; i += blocksize) {
+    //         for (j = 0; j < m_m; j += blocksize) {
+    //             for (row = i; row < i + blocksize && row < m_n; row++) {
+    //                 for (col = j; col < j + blocksize && col < m_m; col++) {
+    //                     transpose(row, col) = m_coefficients[col * m_m + row];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    for (int i = 0; i < m_m; i++) {
+        for (int j = 0; j < m_n; j++) {
             transpose(i, j) = m_coefficients[j * m_m + i];
         }
     }
@@ -270,9 +367,14 @@ Matrix operator*(const double coeff, const Matrix& mat) {
     int n = mat.getN();
     int m = mat.getM();
     Matrix result(n, m);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            result(i, j) = coeff * mat(i,j);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < m; j++) {
+                result(i, j) = coeff * mat(i,j);
+            }
         }
     }
     return result;
@@ -282,9 +384,14 @@ Matrix operator-(const double coeff, const Matrix& mat) {
     int n = mat.getN();
     int m = mat.getM();
     Matrix result(n, m);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            result(i, j) = coeff - mat(i,j);
+    int i, j;
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < m; j++) {
+                result(i, j) = coeff - mat(i,j);
+            }
         }
     }
     return result;
