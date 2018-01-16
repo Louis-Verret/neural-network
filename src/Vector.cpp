@@ -1,7 +1,6 @@
 #include "Vector.h"
 #include <iostream>
 #include <cmath>
-#include <stdexcept>
 
 Vector::Vector() : m_n(0) {
 }
@@ -39,9 +38,13 @@ Vector Vector::operator+(const Vector &v) {
         perror("Invalid size for vector addition");
     }
     Vector res(m_n);
-    for (int i = 0; i < m_n; i++) {
-        res(i) = m_coefficients[i] + v(i);
-    }
+    #pragma omp parallel shared(res, v)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            res(i) = m_coefficients[i] + v(i);
+        }
+    };
     return res;
 }
 
@@ -50,9 +53,13 @@ Vector Vector::operator-(const Vector &v) {
         perror("Invalid size for vector substraction");
     }
     Vector res(m_n);
-    for (int i = 0; i < m_n; i++) {
-        res(i) = m_coefficients[i] - v(i);
-    }
+    #pragma omp parallel shared(res, v)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            res(i) = m_coefficients[i] - v(i);
+        }
+    };
     return res;
 }
 
@@ -61,9 +68,13 @@ Vector Vector::operator*(const Vector &v) {
         perror("Invalid size for Hadamard vector product");
     }
     Vector res(m_n);
-    for (int i = 0; i < m_n; i++) {
-        res(i) = m_coefficients[i] * v(i);
-    }
+    #pragma omp parallel shared(res, v)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            res(i) = m_coefficients[i] * v(i);
+        }
+    };
     return res;
 }
 
@@ -72,57 +83,85 @@ Vector Vector::operator/(const Vector &v) {
         perror("Invalid size for vector division");
     }
     Vector res(m_n);
-    for (int i = 0; i < v.getN(); i++) {
-        res(i) = m_coefficients[i] / v(i);
-    }
+    #pragma omp parallel shared(res, v)
+    {
+        #pragma omp for
+        for (int i = 0; i < v.getN(); i++) {
+            res(i) = m_coefficients[i] / v(i);
+        }
+    };
     return res;
 }
 
 Vector Vector::operator/(const double coeff) {
     Vector res(m_n);
-    for (int i = 0; i < m_n; i++) {
-        res(i) = m_coefficients[i] / coeff;
-    }
+    #pragma omp parallel shared(res)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            res(i) = m_coefficients[i] / coeff;
+        }
+    };
     return res;
 }
 
 Vector Vector::operator+(const double coeff) {
     Vector res(m_n);
-    for (int i = 0; i < m_n; i++) {
-        res(i) = m_coefficients[i] + coeff;
-    }
+    #pragma omp parallel shared(res)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            res(i) = m_coefficients[i] + coeff;
+        }
+    };
     return res;
 }
 
 void Vector::fillRandomly() {
-    for (int i = 0; i < m_n; i++) {
-        double r = ((double) rand() / (double) RAND_MAX);
-        m_coefficients[i] = r;
-    }
+    #pragma omp parallel
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            double r = ((double) rand() / (double) RAND_MAX);
+            m_coefficients[i] = r;
+        }
+    };
 }
 
 void Vector::fillWithZero() {
-    for (int i = 0; i < m_n; i++) {
-        m_coefficients[i] = 0;
+    #pragma omp parallel
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            m_coefficients[i] = 0;
+        }
     }
 }
 
 Vector Vector::sqrt() const {
-    Vector result(m_n);
-    for (int i = 0; i < m_n; i++) {
-        if (m_coefficients[i] < 0) {
-            throw std::logic_error("Invalid Vector sqrt");
+    Vector res(m_n);
+    #pragma omp parallel shared(res)
+    {
+        #pragma omp for
+        for (int i = 0; i < m_n; i++) {
+            if (m_coefficients[i] < 0) {
+                throw std::logic_error("Invalid Vector sqrt");
+            }
+            res(i) = std::sqrt(m_coefficients[i]);
         }
-        result(i) = std::sqrt(m_coefficients[i]);
-    }
-    return result;
+    };
+    return res;
 }
 
 Vector operator*(const double coeff, const Vector& v) {
     Vector res(v.getN());
-    for (int i = 0; i < v.getN(); i++) {
-        res(i) = coeff * v(i);
-    }
+    #pragma omp parallel shared(res, v)
+    {
+        #pragma omp for
+        for (int i = 0; i < v.getN(); i++) {
+            res(i) = coeff * v(i);
+        }
+    };
     return res;
 }
 
