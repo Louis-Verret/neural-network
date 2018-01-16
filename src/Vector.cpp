@@ -1,6 +1,7 @@
 #include "Vector.h"
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 
 Vector::Vector() : m_n(0) {
 }
@@ -34,8 +35,7 @@ double &Vector::operator()(int i) {
 
 Vector Vector::operator+(const Vector &v) {
     if (v.getN() != m_n) {
-        std::cout << v.getN() << " " << m_n << std::endl;
-        perror("Invalid size for vector addition");
+        throw std::logic_error("Invalid size for vector addition");
     }
     Vector res(m_n);
     #pragma omp parallel shared(res, v)
@@ -50,7 +50,7 @@ Vector Vector::operator+(const Vector &v) {
 
 Vector Vector::operator-(const Vector &v) {
     if (v.getN() != m_n) {
-        perror("Invalid size for vector substraction");
+        throw std::logic_error("Invalid size for vector substraction");
     }
     Vector res(m_n);
     #pragma omp parallel shared(res, v)
@@ -65,7 +65,7 @@ Vector Vector::operator-(const Vector &v) {
 
 Vector Vector::operator*(const Vector &v) {
     if (v.getN() != m_n) {
-        perror("Invalid size for Hadamard vector product");
+        throw std::logic_error("Invalid size for Hadamard vector product");
     }
     Vector res(m_n);
     #pragma omp parallel shared(res, v)
@@ -80,7 +80,7 @@ Vector Vector::operator*(const Vector &v) {
 
 Vector Vector::operator/(const Vector &v) {
     if (v.getN() != m_n) {
-        perror("Invalid size for vector division");
+        throw std::logic_error("Invalid size for vector division");
     }
     Vector res(m_n);
     #pragma omp parallel shared(res, v)
