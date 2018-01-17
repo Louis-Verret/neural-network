@@ -7,7 +7,6 @@
 
 #include "Vector.h"
 
-int DEVICE_INDEX = 0;
 
 class Matrix {
 public:
@@ -39,7 +38,6 @@ public:
     Matrix log() const;
     Matrix argmax() const;
     Matrix hadamardProduct(const Matrix &mat2) const;
-    Matrix hadamardProductGPU(const Matrix &mat2) const;
 
 protected:
     int m_n;

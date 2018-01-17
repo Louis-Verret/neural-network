@@ -14,11 +14,6 @@ set(SOURCES
         src/Optimizer.cpp
         src/CostFunction.cpp
         src/Metric.cpp
-        Common/cl.hpp
-        Common/device_picker.hpp
-        Common/err_code.h
-        Common/util.hpp
-        Common/wtime.c
         )
 
 add_executable(neuralnet src/main.cpp ${SOURCES})
