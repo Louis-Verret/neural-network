@@ -12,10 +12,12 @@ int main(int argc, char **argv) {
     Matrix y_train;
     std::cout << "Preprocessing the data" << std::endl;
     readCSV("../data/mnist_train.csv", false, x_train, y_train);
+    centralizeData(x_train, 0, 255);
     oneHotEncoding(y_train, 10);
     Matrix x_test;
     Matrix y_test;
     readCSV("../data/mnist_test.csv", false, x_test, y_test);
+    centralizeData(x_test, 0, 255);
     oneHotEncoding(y_test, 10);
     //generateSinusData(x_train, y_train, 100);
 
@@ -23,17 +25,17 @@ int main(int argc, char **argv) {
     //Optimizer* opti = new SGD(0.1, 0.9);
 
     NeuralNetwork net(opti, "cross_entropy", "accuracy");
-
+    //
     net.addLayer(300, "relu", 784);
     net.addLayer(150, "relu");
     net.addLayer(10, "softmax");
-    // net.addLayer(5, "sigmoid", 1);
-    // net.addLayer(5, "sigmoid");
-    // net.addLayer(1, "relu");
-    //
-    //net.load("../data/mnist_model.data");
-    //
-    std::cout << "Fitting the data" << std::endl;
+    // // net.addLayer(5, "sigmoid", 1);
+    // // net.addLayer(5, "sigmoid");
+    // // net.addLayer(1, "relu");
+    // //
+    // //net.load("../data/mnist_model.data");
+    // //
+    std::cout << "Building the model" << std::endl;
     net.fit(x_train, y_train, 1, 128);
 
     std::cout << "Validating the model" << std::endl;

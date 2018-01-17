@@ -60,7 +60,7 @@ Matrix Matrix::operator*(const Matrix &mat) const {
     Matrix tm = mat.transpose();
     #pragma omp parallel shared(tm, mat_s) private(j, k, mat_s_ij)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (int i = 0; i < m_n; i++) {
             for (j = 0; j < m; j++) {
                 mat_s_ij = 0;
@@ -83,7 +83,7 @@ Matrix Matrix::operator+(const Vector &vec) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] + vec(i);
@@ -102,7 +102,7 @@ Matrix Matrix::operator-(const Matrix& mat) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] - mat(i,j);
@@ -120,7 +120,7 @@ Matrix Matrix::operator+(const Matrix& mat) const {
     int i, j;
     #pragma omp parallel shared(result, mat) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] + mat(i,j);
@@ -135,7 +135,7 @@ Matrix Matrix::operator+(const double coeff) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] + coeff;
@@ -154,7 +154,7 @@ Matrix Matrix::operator/(const Matrix& mat) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] / mat(i,j);
@@ -170,7 +170,7 @@ Matrix Matrix::operator/(const double coeff) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j]/coeff;
@@ -200,7 +200,7 @@ Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] * mat(i, j);
@@ -215,7 +215,7 @@ Matrix Matrix::sqrt() const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 if (m_coefficients[i* m_m +j] < 0) {
@@ -233,7 +233,7 @@ Matrix Matrix::log() const {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 if (m_coefficients[i* m_m +j] <= 0) {
@@ -279,7 +279,7 @@ Matrix Matrix::generateBitMatrix(int n, int m, double bit_rate) {
     #pragma omp parallel shared(result) private(i, j)
     {
         unsigned int seed = omp_get_thread_num() * time(NULL);
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i<n; i++) {
             for (j =0; j<m; j++) {
                 double r = ((double) rand_r(&seed) / (double) RAND_MAX);
@@ -322,24 +322,19 @@ void Matrix::fillWithZero() {
 
 Matrix Matrix::transpose() const { //cache aware
     Matrix transpose(m_m, m_n);
-    // int blocksize = 16;
-    // int i,j, row, col;
-    // #pragma omp parallel shared(transpose) private(i, j, row, col)
-    // {
-    //     #pragma omp for
-    //     for (i = 0; i < m_n; i += blocksize) {
-    //         for (j = 0; j < m_m; j += blocksize) {
-    //             for (row = i; row < i + blocksize && row < m_n; row++) {
-    //                 for (col = j; col < j + blocksize && col < m_m; col++) {
-    //                     transpose(row, col) = m_coefficients[col * m_m + row];
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    for (int i = 0; i < m_m; i++) {
-        for (int j = 0; j < m_n; j++) {
-            transpose(i, j) = m_coefficients[j * m_m + i];
+    int blocksize = 16;
+    int i,j, row, col;
+    #pragma omp parallel shared(transpose) private(i, j, row, col)
+    {
+        #pragma omp for collapse(2)
+        for (i = 0; i < m_m; i += blocksize) {
+            for (j = 0; j < m_n; j += blocksize) {
+                for (row = i; row < i + blocksize && row < m_m; row++) {
+                    for (col = j; col < j + blocksize && col < m_n; col++) {
+                        transpose(row, col) = m_coefficients[col * m_m + row];
+                    }
+                }
+            }
         }
     }
     return transpose;
@@ -370,7 +365,7 @@ Matrix operator*(const double coeff, const Matrix& mat) {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < n; i++) {
             for (j = 0; j < m; j++) {
                 result(i, j) = coeff * mat(i,j);
@@ -387,7 +382,7 @@ Matrix operator-(const double coeff, const Matrix& mat) {
     int i, j;
     #pragma omp parallel shared(result) private(i, j)
     {
-        #pragma omp for
+        #pragma omp for collapse(2)
         for (i = 0; i < n; i++) {
             for (j = 0; j < m; j++) {
                 result(i, j) = coeff - mat(i,j);

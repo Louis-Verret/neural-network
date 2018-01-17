@@ -37,17 +37,89 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
     }
     x.resize(read_x[0].size(), read_x.size());
     y.resize(read_y[0].size(), read_y.size());
-    for(int i = 0; i<x.getN(); i++) {
-        for(int j = 0; j<x.getM(); j++) {
-            x(i, j) = read_x[j][i]/255;
+    int blocksize = 16;
+    int i, j, row, col;
+    #pragma omp parallel shared(x, read_x, blocksize) private(i, j, row, col)
+    {
+        #pragma omp for
+        for (i = 0; i < x.getN(); i += blocksize) {
+            for (j = 0; j < x.getM(); j += blocksize) {
+                for (row = i; row < i + blocksize && row < x.getN(); row++) {
+                    for (col = j; col < j + blocksize && col < x.getM(); col++) {
+                        x(row, col) = read_x[col][row];
+                    }
+                }
+            }
         }
     }
-    for(int i = 0; i<y.getN(); i++) {
-        for(int j = 0; j<y.getM(); j++) {
-            y(i, j) = read_y[j][i];
+    #pragma omp parallel shared(y, read_y, blocksize) private(i, j, row, col)
+    {
+        #pragma omp for
+        for (i = 0; i < y.getN(); i += blocksize) {
+            for (j = 0; j < y.getM(); j += blocksize) {
+                for (row = i; row < i + blocksize && row < y.getN(); row++) {
+                    for (col = j; col < j + blocksize && col < y.getM(); col++) {
+                        y(row, col) = read_y[col][row];
+                    }
+                }
+            }
         }
     }
+}
 
+void normalizeData(Matrix& x) {
+    double mean = 0;
+    double sd = 0;
+    int i, j;
+    #pragma omp parallel for reduction (+:mean)
+    for (i = 0; i < x.getN(); i++) {
+        for (j = 0; j < x.getM(); j++) {
+            mean += x(i, j);
+        }
+    }
+    mean /= (x.getN() * x.getM());
+    #pragma omp parallel shared(x, mean, sd) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < x.getN(); i++) {
+            for (j = 0; j < x.getM(); j++) {
+                sd +=  std::pow(x(i,j) - mean, 2);
+            }
+        }
+    }
+    sd = std::sqrt(sd);
+    #pragma omp parallel shared(x, mean, sd) private(i, j)
+    {
+        #pragma omp for
+        for (i = 0; i < x.getN(); i++) {
+            for (j = 0; j < x.getM(); j++) {
+                x(i, j) =  (x(i,j) - mean) / sd;
+            }
+        }
+    }
+}
+
+void centralizeData(Matrix& x, double min_value, double max_value) {
+    if (min_value == 0 && max_value == 0) {
+        min_value = x(0, 0);
+        max_value = x(0, 0);
+        for (int i = 0; i < x.getN(); i++) {
+            for (int j = 0; j < x.getM(); j++) {
+                max_value = std::max(max_value, x(i, j));
+                min_value = std::min(min_value, x(i, j));
+            }
+        }
+    }
+    int i, j;
+    #pragma omp parallel shared(x, min_value, max_value) private(i, j)
+    {
+        #pragma omp for collapse(2)
+        for (i = 0; i < x.getN(); i++) {
+            for (j = 0; j < x.getM(); j++) {
+                x(i, j) = (x(i, j) - min_value) / (max_value - min_value);
+            }
+        }
+    }
 }
 
 void generateSinusData(Matrix& x, Matrix& y, int s) {
