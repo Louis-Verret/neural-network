@@ -2,9 +2,8 @@
 #include "Utils.h"
 #include "Optimizer.h"
 #include <omp.h>
+
 #include <iostream>
-#include "../Common/cl.hpp"
-#include "../Common/device_picker.hpp"
 
 
 int main(int argc, char **argv) {
@@ -76,22 +75,6 @@ int main(int argc, char **argv) {
     // MatrixPar m8 = m4.argmax();
     // run_time = omp_get_wtime() - start_time;
     // printf("\n Matrix // multiplications in %lf seconds\n",run_time);
-
-    std::vector<cl::Device> devices;
-    unsigned numDevices = getDeviceList(devices);
-    if (DEVICE_INDEX >= numDevices)
-    {
-        std::cout << "Invalid device index\n";
-        return EXIT_FAILURE;
-    }
-    cl::Device device = devices[DEVICE_INDEX];
-    std::string name;
-    getDeviceName(device, name);
-    std::cout << "\nUsing OpenCL device: " << name << "\n";
-
-
-
-
 
     return 0;
 }

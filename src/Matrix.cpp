@@ -3,9 +3,6 @@
 #include <cmath>
 #include "omp.h"
 #include <stdexcept>
-#include "../Common/cl.hpp"
-#include "../Common/util.hpp"
-
 
 Matrix::Matrix() : m_n(0), m_m(0) {
 }
@@ -194,8 +191,6 @@ double Matrix::sumElem() const {
     return sum;
 }
 
-
-
 Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     if (m_n != mat.getN() || m_m != mat.getM()) {
         throw std::logic_error("Invalid Matrix Hadamard Product");
@@ -214,8 +209,6 @@ Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     }
     return result;
 }
-
-
 
 Matrix Matrix::sqrt() const {
     Matrix result(m_n, m_m);
