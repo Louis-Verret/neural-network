@@ -5,15 +5,18 @@
 #include <stdexcept>
 
 Matrix::Matrix() : m_n(0), m_m(0) {
+    m_coefficients = new double[0];
 }
 
 Matrix::~Matrix() {
+    delete[] m_coefficients;
 }
 
 Matrix::Matrix(int n, int m) :
         m_n(n),
         m_m(m) {
-    m_coefficients = std::vector<double>(n * m);
+    //m_coefficients = std::vector<double>(n * m);
+    m_coefficients = new double[n * m];
 }
 
 const double &Matrix::operator()(int i, int j) const {
@@ -191,6 +194,24 @@ double Matrix::sumElem() const {
     return sum;
 }
 
+Matrix::Matrix(const Matrix& mat) {
+    m_n = mat.getN();
+    m_m = mat.getM();
+    m_coefficients = new double[m_n*m_m];
+    std::copy(mat.m_coefficients, mat.m_coefficients + m_n*m_m, m_coefficients);
+}
+
+Matrix& Matrix::operator=(const Matrix& mat) {
+    if (mat.getN() != m_n || mat.getM() != m_m) {
+        delete[] m_coefficients;
+        m_n = mat.getN();
+        m_m = mat.getM();
+        m_coefficients = new double[m_n * m_m];
+    }
+    std::copy(mat.m_coefficients, mat.m_coefficients + m_n*m_m, m_coefficients);
+    return *this;
+}
+
 Matrix Matrix::hadamardProduct(const Matrix &mat) const {
     if (m_n != mat.getN() || m_m != mat.getM()) {
         throw std::logic_error("Invalid Matrix Hadamard Product");
@@ -341,7 +362,9 @@ Matrix Matrix::transpose() const { //cache aware
 }
 
 void Matrix::resize(int new_n, int new_m) {
-    m_coefficients = std::vector<double>(new_n * new_m);
+    //m_coefficients = std::vector<double>(new_n * new_m);
+    delete[] m_coefficients;
+    m_coefficients = new double[new_n * new_m];
     m_n = new_n;
     m_m = new_m;
 }
