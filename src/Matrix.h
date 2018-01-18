@@ -12,6 +12,7 @@ class Matrix {
 public:
     Matrix();
     Matrix(int n, int m);
+    Matrix(const Matrix& mat);
     ~Matrix();
 
     int getN() const { return m_n; };
@@ -28,6 +29,8 @@ public:
     Matrix operator/(const Matrix& mat) const;
     Vector operator*(const Vector &vec) const;
 
+    Matrix& operator=(const Matrix& mat);
+
     void fillRandomly();
     void fillWithZero();
     Matrix transpose() const;
@@ -42,7 +45,8 @@ public:
 protected:
     int m_n;
     int m_m;
-    std::vector<double> m_coefficients;
+    double* m_coefficients;
+    //std::vector<double> m_coefficients;
 
 };
 

@@ -53,28 +53,33 @@ int main(int argc, char **argv) {
 
 
 
-    // int n = 200;
+    // int n = 1000;
+    // int iter = 200;
     //
     // Matrix m1 = Matrix(n, n);
     // Matrix m2 = Matrix(n, n);
     // m1.fillWithZero();
     // m2.fillWithZero();
     // m2 = m2 + 1;
-    // double start_time = omp_get_wtime();
-    // Matrix m9 = m2.argmax();
-    // double run_time = omp_get_wtime() - start_time;
-    // printf("\n Matrix seq multiplications in %lf seconds\n",run_time);
-    //
-    //
-    // MatrixPar m3 = MatrixPar(n, n);
-    // MatrixPar m4 = MatrixPar(n, n);
-    // m3.fillWithZero();
-    // m4.fillWithZero();
-    // m4 = m4 + 1;
-    // start_time = omp_get_wtime();
-    // MatrixPar m8 = m4.argmax();
-    // run_time = omp_get_wtime() - start_time;
-    // printf("\n Matrix // multiplications in %lf seconds\n",run_time);
+    // double mean = 0;
+    // for (int i = 0; i<iter; i++) {
+    //     double start_time = omp_get_wtime();
+    //     Matrix m9 = m1 + m2;
+    //     double run_time = omp_get_wtime() - start_time;
+    //     mean += run_time;
+    // }
+    // printf("\n Matrix seq multiplications in %lf seconds\n",mean/iter);
+    // //
+    // //
+    // // MatrixPar m3 = MatrixPar(n, n);
+    // // MatrixPar m4 = MatrixPar(n, n);
+    // // m3.fillWithZero();
+    // // m4.fillWithZero();
+    // // m4 = m4 + 1;
+    // // start_time = omp_get_wtime();
+    // // MatrixPar m8 = m4.argmax();
+    // // run_time = omp_get_wtime() - start_time;
+    // // printf("\n Matrix // multiplications in %lf seconds\n",run_time);
 
     return 0;
 }
