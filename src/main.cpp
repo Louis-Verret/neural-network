@@ -2,8 +2,8 @@
 #include "Utils.h"
 #include "Optimizer.h"
 #include <omp.h>
-
 #include <iostream>
+// #include "MatrixGPU.h"
 
 
 int main(int argc, char **argv) {
@@ -80,6 +80,21 @@ int main(int argc, char **argv) {
     // // MatrixPar m8 = m4.argmax();
     // // run_time = omp_get_wtime() - start_time;
     // // printf("\n Matrix // multiplications in %lf seconds\n",run_time);
+
+
+ /*   // DEVICE is defined in matrixGPU.h as a global var
+    cl::Context context(DEVICE);
+    cl::CommandQueue queue(context, DEVICE);
+
+    // Kernels compil
+    cl::Program program_mul(context, util::loadProgram("matmul.cl"), true);
+    cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> naive_mmul(program_mul, "mmul");
+
+    MatrixGPU m1(context, 1024, 1024);
+    MatrixGPU m2(context, 1024, 1024);
+    MatrixGPU m4(context, 1024, 1024);
+    m4 = m1.matmult(queue, naive_mmul, m2);*/
+
 
     return 0;
 }
