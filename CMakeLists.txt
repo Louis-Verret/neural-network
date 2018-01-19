@@ -11,9 +11,11 @@ set(SOURCES
         src/NeuralNetwork.cpp
         src/ActivationFunction.cpp
         src/Utils.cpp
+        src/ProgressBar
         src/Optimizer.cpp
         src/CostFunction.cpp
         src/Metric.cpp
         )
 
-add_executable(neuralnet src/main.cpp ${SOURCES})
+add_executable(sinus src/mainSinus.cpp ${SOURCES})
+add_executable(mnist src/mainMNIST.cpp ${SOURCES})
