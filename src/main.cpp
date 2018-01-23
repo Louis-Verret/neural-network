@@ -3,8 +3,10 @@
 #include "Optimizer.h"
 #include <omp.h>
 #include <iostream>
-// #include "MatrixGPU.h"
+#include "MatrixGPU.h"
+#include "../Common/err_code.h"
 
+int DEVICE = 0;
 
 int main(int argc, char **argv) {
 
@@ -52,49 +54,43 @@ int main(int argc, char **argv) {
     //std::cout << net << std::endl;
 
 
-
-    // int n = 1000;
-    // int iter = 200;
+    // try {
     //
-    // Matrix m1 = Matrix(n, n);
-    // Matrix m2 = Matrix(n, n);
-    // m1.fillWithZero();
-    // m2.fillWithZero();
-    // m2 = m2 + 1;
-    // double mean = 0;
-    // for (int i = 0; i<iter; i++) {
+    //     int n = 2;
+    //     int k = 5;
+    //     int m = 3;
+    //
+    //     Matrix m5 = Matrix(n, k);
+    //     Matrix m6 = Matrix(k, m);
+    //     Matrix m7 = Matrix(m, n);
+    //     m5.fillRandomly();
+    //     m6.fillRandomly();
     //     double start_time = omp_get_wtime();
-    //     Matrix m9 = m1 + m2;
+    //     Matrix m9 = m5 * m6 * m7;
     //     double run_time = omp_get_wtime() - start_time;
-    //     mean += run_time;
+    //     printf("\n Matrix CPU multiplications in %lf seconds\n", run_time);
+    //
+    //     GPU::init();
+    //     MatrixGPU m1(n, k);
+    //     MatrixGPU m2(k, m);
+    //     MatrixGPU m3(m, n);
+    //     start_time = omp_get_wtime();
+    //     MatrixGPU m4 = m1 * m2;
+    //     m4 = m4 * m3;
+    //     run_time = omp_get_wtime() - start_time;
+    //     std::cout << m4 << std::endl;
+    //     printf("\n Matrix GPU multiplications in %lf seconds\n", run_time);
+    //
+    //
+    // } catch (cl::Error err) {
+    //     std::cout << "Exception\n";
+    //     std::cerr << "ERROR: "
+    //               << err.what()
+    //               << "("
+    //               << err_code(err.err())
+    //               << ")"
+    //               << std::endl;
     // }
-    // printf("\n Matrix seq multiplications in %lf seconds\n",mean/iter);
-    // //
-    // //
-    // // MatrixPar m3 = MatrixPar(n, n);
-    // // MatrixPar m4 = MatrixPar(n, n);
-    // // m3.fillWithZero();
-    // // m4.fillWithZero();
-    // // m4 = m4 + 1;
-    // // start_time = omp_get_wtime();
-    // // MatrixPar m8 = m4.argmax();
-    // // run_time = omp_get_wtime() - start_time;
-    // // printf("\n Matrix // multiplications in %lf seconds\n",run_time);
-
-
- /*   // DEVICE is defined in matrixGPU.h as a global var
-    cl::Context context(DEVICE);
-    cl::CommandQueue queue(context, DEVICE);
-
-    // Kernels compil
-    cl::Program program_mul(context, util::loadProgram("matmul.cl"), true);
-    cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> naive_mmul(program_mul, "mmul");
-
-    MatrixGPU m1(context, 1024, 1024);
-    MatrixGPU m2(context, 1024, 1024);
-    MatrixGPU m4(context, 1024, 1024);
-    m4 = m1.matmult(queue, naive_mmul, m2);*/
-
 
     return 0;
 }
