@@ -17,7 +17,7 @@ MatrixGPU::MatrixGPU(int n, int m, bool init) : m_n(n), m_m(m) {
         std::vector<float> h_A(m_padding_n * m_padding_m, 0);
         for (int i = 0; i<m_n; i++) {
             for (int j = 0; j<m_m; j++) {
-                h_A[i + m_padding_m*j] = 1.0;
+                h_A[m_padding_m*i +j] = 2.0;
             }
         }
         // std::cout << h_A[31 + m_m * 0] << std::endl;
@@ -86,6 +86,23 @@ MatrixGPU MatrixGPU::operator*(const MatrixGPU &mat) const {
     return res;
 }
 
+MatrixGPU MatrixGPU::transpose() const {
+
+
+    MatrixGPU res(m_m, m_n, false);
+    cl::NDRange global(m_padding_m, m_padding_n);
+    cl::NDRange local(32, 32);
+
+    cl::Buffer block_buffer = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(float) * 32*33);
+
+    GPU::mat_tranpose_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+         m_padding_n, m_padding_m, m_buffer, res.getBuffer(), block_buffer);
+
+    GPU::queue.finish();
+
+    return res;
+}
+
 std::ostream& operator << (std::ostream& out, const MatrixGPU& mat) {
     int n = mat.getN(); int m = mat.getM();
     std::vector<float> mat_copy(mat.getPaddingN()*mat.getPaddingM());
@@ -93,7 +110,7 @@ std::ostream& operator << (std::ostream& out, const MatrixGPU& mat) {
     //out << "Size ("  << n << " * " << m << ")" << std::endl ;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            out << mat_copy[i + mat.getPaddingM()*j] << " ";
+            out << mat_copy[j + mat.getPaddingM()*i] << " ";
         }
         out << std::endl;
     }

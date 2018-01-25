@@ -1,4 +1,5 @@
 #define TILE_WIDTH 32
+#define BLOCK_DIM 32
 
 __kernel void mmul1(
    const int N, // size(A) = NxK
@@ -50,4 +51,42 @@ __kernel void mmul(const int M, const int K, const int N,
     barrier(CLK_LOCAL_MEM_FENCE);
   }
   d_P[Col*M+Row] = Pvalue;
+}
+
+__kernel void transpose(int height, int width, __global float* idata, __global float* odata, __global float* block)
+{
+    // read the matrix tile into shared memory
+	unsigned int xIndex = get_global_id(0);
+	unsigned int yIndex = get_global_id(1);
+
+	if((xIndex < width) && (yIndex < height))
+	{
+		unsigned int index_in = yIndex * width + xIndex;
+		block[get_local_id(1)*(BLOCK_DIM+1)+get_local_id(0)] = idata[index_in];
+	}
+
+	barrier(CLK_LOCAL_MEM_FENCE);
+
+	// write the transposed matrix tile to global memory
+	xIndex = get_group_id(1) * BLOCK_DIM + get_local_id(0);
+	yIndex = get_group_id(0) * BLOCK_DIM + get_local_id(1);
+	if((xIndex < height) && (yIndex < width))
+    {
+		unsigned int index_out = yIndex * height + xIndex;
+		odata[index_out] = block[get_local_id(0)*(BLOCK_DIM+1)+get_local_id(1)];
+    }
+}
+
+__kernel void transpose_naive(int height,  int width, __global float* idata, __global float *odata,  __global float* block)
+{
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if (xIndex < width && yIndex < height)
+    {
+        unsigned int index_in  = xIndex + width * yIndex;
+        unsigned int index_out = yIndex + height * xIndex;
+        //printf("%i %i %i %i\n", index_out, index_in, height, width);
+        odata[index_out] = idata[index_in];
+    }
 }

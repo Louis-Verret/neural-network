@@ -11,6 +11,7 @@ namespace GPU
             initProgram();
             initQueue();
             initMatMulKernel();
+            initMatTransposeKernel();
         }
 
         const cl::Context initContext() {
@@ -24,7 +25,7 @@ namespace GPU
         }
 
         const cl::Program initProgram() {
-            static cl::Program program(GPU::context, util::loadProgram("../src/matmul.cl"), true);
+            static cl::Program program(GPU::context, util::loadProgram("../src/kernels.cl"), true);
             return program;
         }
 
@@ -41,8 +42,14 @@ namespace GPU
             return mmul;
         }
 
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer>  initMatTransposeKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> transpose(GPU::program, "transpose_naive");
+            return transpose;
+        }
+
         cl::Context context = initContext();
         cl::Program program = initProgram();
         cl::CommandQueue queue = initQueue();
         cl::make_kernel<int, int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_mul_kernel = initMatMulKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_tranpose_kernel = initMatTransposeKernel();
 }

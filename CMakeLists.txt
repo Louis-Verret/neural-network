@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.11)
 
 project(HPC_GPU)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -fopenmp -L/opt/amdgpu-pro/lib64  -lOpenCL -lrt")
+set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -fopenmp -L/opt/amdgpu-pro/lib64")
 
 set(SOURCES
         src/Matrix.cpp
@@ -24,4 +24,8 @@ set(SOURCES
         Common/wtime.c
         )
 
+link_directories(Common)
+
 add_executable(neuralnet src/main.cpp ${SOURCES})
+
+target_link_libraries(neuralnet OpenCL rt)
