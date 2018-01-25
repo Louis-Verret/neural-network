@@ -125,3 +125,42 @@ __kernel void sum_elements(int height,  int width, __global double *input, __glo
         }
     }
 }
+
+__kernel void add_naive(int height,  int width, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if (xIndex < width && yIndex < height)
+    {
+        double value = idata1[xIndex * width + yIndex] + idata2[xIndex * width + yIndex];
+        odata[xIndex * width + yIndex] = value;
+    }
+}
+
+
+__kernel void add(int height,  int width, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[TILE_WIDTH][TILE_WIDTH];
+    __local double ds_N[TILE_WIDTH][TILE_WIDTH];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        ds_M[get_local_id(1)][get_local_id(0)] = idata1[index_in];
+        ds_N[get_local_id(1)][get_local_id(0)] = idata2[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+    
+    xIndex = get_group_id(1) * TILE_WIDTH + get_local_id(0);
+    yIndex = get_group_id(0) * TILE_WIDTH + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = ds_M[get_local_id(1)][get_local_id(0)] + ds_N[get_local_id(1)][get_local_id(0)];
+    }
+
+}

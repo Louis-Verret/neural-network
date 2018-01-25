@@ -56,34 +56,43 @@ int main(int argc, char **argv) {
 
     try {
 
-        int n = 7;
-        int k = 5;
-        int m = 3;
+        int n = 5000;
+        int k = 5000;
+        int m = 5000;
+        int iter = 20;
 
         Matrix m5 = Matrix(n, k);
         Matrix m6 = Matrix(k, m);
         // // Matrix m7 = Matrix(m, n);
         m5.fillRandomly();
         m6.fillRandomly();
-        double start_time = omp_get_wtime();
-        Matrix m7 = m5 * m6;
-        double run_time = omp_get_wtime() - start_time;
-        printf("\n Matrix CPU multiplications in %lf seconds\n", run_time);
+
+        double start_time;
+        double time_mean = 0;
+        for (int i = 0; i<iter; i++) {
+            start_time = omp_get_wtime();
+            Matrix m7 = m5.transpose();
+            time_mean += omp_get_wtime() - start_time;
+        }
+        printf("\n Matrix CPU multiplications in %lf seconds\n", time_mean/iter);
 
         MatrixGPU m2(n, k);
         MatrixGPU m3(k, m);
         // MatrixGPU m3(m, n);
-        std::cout << m2 << std::endl;
-        std::cout << m3 << std::endl;
-        std::cout << (m2 * m3).sumElem() << std::endl;
-        start_time = omp_get_wtime();
-        MatrixGPU m4 = m2 * m3;
+        // std::cout << m2 << std::endl;
+        // std::cout << m3 << std::endl;
+        // std::cout << (m2 * m3) << std::endl;
+        // std::cout << ((m2 * m3) + m2) << std::endl;
+        time_mean = 0;
+        for (int i = 0; i<iter; i++) {
+            start_time = omp_get_wtime();
+            MatrixGPU m4 = m2.transpose();
+            time_mean += omp_get_wtime() - start_time;
+        }
         // m4 = m4 * m3;
         //MatrixGPU m4 = m1.transpose();
-        //std::cout << m2.transpose() << std::endl;
-        run_time = omp_get_wtime() - start_time;
         //std::cout << m4 << std::endl;
-        printf("\n Matrix GPU multiplications in %lf seconds\n", run_time);
+        printf("\n Matrix GPU multiplications in %lf seconds\n", time_mean/iter);
 
 
     } catch (cl::Error err) {

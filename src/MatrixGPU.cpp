@@ -18,7 +18,7 @@ MatrixGPU::MatrixGPU(int n, int m, bool init) : m_n(n), m_m(m) {
         std::vector<double> h_A(m_padding_n * m_padding_m, 0);
         for (int i = 0; i<m_n; i++) {
             for (int j = 0; j<m_m; j++) {
-                h_A[m_padding_m*i +j] = i + j;
+                h_A[m_padding_m*i +j] = (int)(((double) rand() / (double) RAND_MAX) * 10);
             }
         }
         // std::cout << h_A[31 + m_m * 0] << std::endl;
@@ -88,8 +88,6 @@ MatrixGPU MatrixGPU::operator*(const MatrixGPU &mat) const {
 }
 
 MatrixGPU MatrixGPU::transpose() const {
-
-
     MatrixGPU res(m_m, m_n, false);
     cl::NDRange global(m_padding_m, m_padding_n);
     cl::NDRange local(32, 32);
@@ -103,6 +101,25 @@ MatrixGPU MatrixGPU::transpose() const {
 
     return res;
 }
+
+MatrixGPU MatrixGPU::operator+(const MatrixGPU &mat) const {
+    //std::cout << mat.getN() << " " << m_n << " " << mat.getM() << " " << m_m << std::endl;
+    if (mat.getN() != m_n || mat.getM() != m_m) {
+        throw std::logic_error("Invalid addition Mat+Mat");
+    }
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_add_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
 
 double MatrixGPU::sumElem() const {
 

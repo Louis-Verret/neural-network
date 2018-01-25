@@ -39,6 +39,11 @@ namespace GPU
             return transpose;
         }
 
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> initMatAddKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> add(GPU::program, "add");
+            return add;
+        }
+
         const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatSumElemKernel() {
             static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> sumElem(GPU::program, "sum_elements");
             return sumElem;
@@ -49,6 +54,7 @@ namespace GPU
         cl::CommandQueue queue = initQueue();
         cl::make_kernel<int, int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_mul_kernel = initMatMulKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_tranpose_kernel = initMatTransposeKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_add_kernel = initMatAddKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel = initMatSumElemKernel();
 
 }
