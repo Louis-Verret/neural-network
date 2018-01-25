@@ -6,8 +6,6 @@
 
 namespace GPU
 {
-    void init();
-
     const cl::Context initContext();
     const cl::Program initProgram();
     const cl::CommandQueue initQueue();

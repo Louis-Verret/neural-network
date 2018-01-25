@@ -6,14 +6,6 @@ extern int DEVICE;
 
 namespace GPU
 {
-        void init() {
-            initContext();
-            initProgram();
-            initQueue();
-            initMatMulKernel();
-            initMatTransposeKernel();
-        }
-
         const cl::Context initContext() {
             std::vector<cl::Device> devices;
             getDeviceList(devices);

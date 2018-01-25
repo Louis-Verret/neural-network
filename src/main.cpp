@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
 
     try {
 
-        int n = 10000;
-        int k = 20000;
+        int n = 7;
+        int k = 5;
         int m = 16;
 
         Matrix m5 = Matrix(n, k);
@@ -70,17 +70,17 @@ int main(int argc, char **argv) {
         double run_time = omp_get_wtime() - start_time;
         printf("\n Matrix CPU multiplications in %lf seconds\n", run_time);
 
-        GPU::init();
         MatrixGPU m1(n, k);
         // MatrixGPU m2(k, m);
         // MatrixGPU m3(m, n);
-        //std::cout << m1 << std::endl;
+        std::cout << m1 << std::endl;
         start_time = omp_get_wtime();
         //MatrixGPU m4 = m1 * m2;
         // m4 = m4 * m3;
         MatrixGPU m4 = m1.transpose();
+        m4 = m1.transpose();
         run_time = omp_get_wtime() - start_time;
-        //std::cout << m4 << std::endl;
+        std::cout << m4 << std::endl;
         printf("\n Matrix GPU multiplications in %lf seconds\n", run_time);
 
 
