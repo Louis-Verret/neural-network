@@ -9,15 +9,16 @@ MatrixGPU::~MatrixGPU() {
 }
 
 MatrixGPU::MatrixGPU(int n, int m, bool init) : m_n(n), m_m(m) {
-    int padding_n = (m_n%32 != 0)? m_n + 32 - m_n%32 : m_n;
-    int padding_m = (m_m%32 != 0)? m_m + 32 - m_m%32 : m_m;
+    int block_size = 32;
+    int padding_n = (m_n%block_size != 0)? m_n + block_size - m_n%block_size : m_n;
+    int padding_m = (m_m%block_size != 0)? m_m + block_size - m_m%block_size : m_m;
     m_padding_n = padding_n;
     m_padding_m = padding_m;
     if (init) {
-        std::vector<float> h_A(m_padding_n * m_padding_m, 0);
+        std::vector<double> h_A(m_padding_n * m_padding_m, 0);
         for (int i = 0; i<m_n; i++) {
             for (int j = 0; j<m_m; j++) {
-                h_A[m_padding_m*i +j] = 2.0;
+                h_A[m_padding_m*i +j] = i + j;
             }
         }
         // std::cout << h_A[31 + m_m * 0] << std::endl;
@@ -33,7 +34,7 @@ MatrixGPU::MatrixGPU(int n, int m, bool init) : m_n(n), m_m(m) {
         // std::cout << "------" << std::endl;
         m_buffer = cl::Buffer(GPU::context, h_A.begin(), h_A.end(), true);
     } else {
-        m_buffer = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(float) * m_padding_n * m_padding_m);
+        m_buffer = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(double) * m_padding_n * m_padding_m);
     }
 }
 
@@ -93,7 +94,7 @@ MatrixGPU MatrixGPU::transpose() const {
     cl::NDRange global(m_padding_m, m_padding_n);
     cl::NDRange local(32, 32);
 
-    cl::Buffer block_buffer = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(float) * 32*33);
+    cl::Buffer block_buffer = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(double) * 32*33);
 
     GPU::mat_tranpose_kernel(cl::EnqueueArgs(GPU::queue, global, local),
          m_padding_n, m_padding_m, m_buffer, res.getBuffer(), block_buffer);
@@ -103,9 +104,36 @@ MatrixGPU MatrixGPU::transpose() const {
     return res;
 }
 
+double MatrixGPU::sumElem() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    int block_size = 32;
+    cl::NDRange local(block_size, block_size);
+    int partial_sums_size = m_padding_n/block_size * m_padding_m/block_size;
+
+    cl::Buffer partial_sums = cl::Buffer(GPU::context, CL_MEM_READ_WRITE, sizeof(double) * partial_sums_size);
+    // std::vector<double> h_A(m_padding_n * m_padding_m, 0);
+    // cl::Buffer localSums = cl::Buffer(GPU::context, h_A.begin(), h_A.end(), true);
+
+    GPU::mat_sum_elem_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+        m_padding_n, m_padding_m, m_buffer, partial_sums);
+
+    GPU::queue.finish();
+    std::vector<double> mat_copy(partial_sums_size);
+    cl::copy(GPU::queue, partial_sums, mat_copy.begin(), mat_copy.end());
+    double s = 0;
+    for (int i = 0; i<partial_sums_size; i++) {
+        //std::cout << mat_copy[i] << std::endl;
+        s += mat_copy[i];
+    }
+
+    return s;
+}
+
 std::ostream& operator << (std::ostream& out, const MatrixGPU& mat) {
     int n = mat.getN(); int m = mat.getM();
-    std::vector<float> mat_copy(mat.getPaddingN()*mat.getPaddingM());
+    std::vector<double> mat_copy(mat.getPaddingN()*mat.getPaddingM());
     cl::copy(GPU::queue, mat.getBuffer(), mat_copy.begin(), mat_copy.end());
     //out << "Size ("  << n << " * " << m << ")" << std::endl ;
     for (int i = 0; i < n; i++) {

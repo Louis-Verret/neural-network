@@ -17,6 +17,7 @@ namespace GPU
     extern cl::CommandQueue queue;
     extern cl::make_kernel<int, int, int, cl::Buffer, cl::Buffer, cl::Buffer>  mat_mul_kernel;
     extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_tranpose_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel;
 }
 
 #endif //GPU_H

@@ -21,6 +21,7 @@ public:
     const double &operator()(cl::CommandQueue& queue, int i, int j) const;
     MatrixGPU operator*(const MatrixGPU &mat) const;
     MatrixGPU transpose() const;
+    double sumElem() const;
 
 protected:
     int m_padding_n;
