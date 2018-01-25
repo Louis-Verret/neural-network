@@ -90,3 +90,15 @@ __kernel void transpose_naive(int height,  int width, __global float* idata, __g
         odata[index_out] = idata[index_in];
     }
 }
+
+__kernel void add_naive(int height,  int width, __global float* idata1, __global float* idata2, __global float *odata)
+{
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if (xIndex < width && yIndex < height)
+    {
+        float value = idata1[xIndex * width + yIndex] + idata2[xIndex * width + yIndex];
+        odata[xIndex * width + yIndex] = value;
+    }
+}
