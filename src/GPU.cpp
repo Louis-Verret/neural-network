@@ -6,13 +6,6 @@ extern int DEVICE;
 
 namespace GPU
 {
-        void init() {
-            initContext();
-            initProgram();
-            initQueue();
-            initMatMulKernel();
-        }
-
         const cl::Context initContext() {
             std::vector<cl::Device> devices;
             getDeviceList(devices);
@@ -24,7 +17,7 @@ namespace GPU
         }
 
         const cl::Program initProgram() {
-            static cl::Program program(GPU::context, util::loadProgram("../src/matmul.cl"), true);
+            static cl::Program program(GPU::context, util::loadProgram("../src/kernels.cl"), true);
             return program;
         }
 
@@ -41,8 +34,27 @@ namespace GPU
             return mmul;
         }
 
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer>  initMatTransposeKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> transpose(GPU::program, "transpose_naive");
+            return transpose;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> initMatAddKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> add(GPU::program, "add");
+            return add;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatSumElemKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> sumElem(GPU::program, "sum_elements");
+            return sumElem;
+        }
+
         cl::Context context = initContext();
         cl::Program program = initProgram();
         cl::CommandQueue queue = initQueue();
         cl::make_kernel<int, int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_mul_kernel = initMatMulKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_tranpose_kernel = initMatTransposeKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_add_kernel = initMatAddKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel = initMatSumElemKernel();
+
 }
