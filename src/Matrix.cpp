@@ -320,7 +320,7 @@ void Matrix::fillRandomly() {
     double weights_init;
     #pragma omp parallel private(i, weights_init)
     {
-        weights_init = std::sqrt(12.0 / (m_n + m_m));
+        weights_init = std::sqrt(6.0 / (m_n + m_m));
         unsigned int seed = omp_get_thread_num() * time(NULL);
         #pragma omp for
         for (i = 0; i < m_m * m_n; i++) {

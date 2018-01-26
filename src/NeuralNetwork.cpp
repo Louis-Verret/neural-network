@@ -1,5 +1,6 @@
 #include "NeuralNetwork.h"
 #include "Utils.h"
+#include "ProgressBar.h"
 
 #include <iostream>
 #include <cstring>
@@ -39,26 +40,30 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
     std::vector<Matrix> batches_y;
     separateDataInBatches(x, y, batches_x, batches_y, batch_size);
     int nb_batches = batches_x.size();
+    ProgressBar pb(30);
     for (int t = 0; t<epoch; t++) {
         double error = 0;
         double metric = 0;
+        std::cout << "\nEpoch: " << t+1 << "/" << epoch << std::endl;
         for (int j = 0; j<nb_batches; j++) {
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
             double batch_error = m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
+            double batch_metric = 0;
             error += batch_error;
-            std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
+            //std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
             if (m_metric != NULL) {
-                double batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
+                batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
                 metric += batch_metric;
-                std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
+                //std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
             }
+            float progress = (float)(j+1) / (float)nb_batches;
+            pb.display(progress, batch_error, batch_metric);
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
-        std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
-        std::cout << " Mean Error: " << error/batches_x.size() << std::endl;
+        std::cout << "\nMean Error: " << error/batches_x.size();
         if (m_metric != NULL) {
-            std::cout << "Mean Metric: " << metric/batches_x.size() << std::endl;
+            std::cout << "\nMean Metric: " << metric/batches_x.size();
         }
     }
     //std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;

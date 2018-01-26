@@ -11,21 +11,21 @@ set(SOURCES
         src/NeuralNetwork.cpp
         src/ActivationFunction.cpp
         src/Utils.cpp
+        src/ProgressBar
         src/Optimizer.cpp
         src/CostFunction.cpp
         src/Metric.cpp
 
         src/GPU.cpp
         src/MatrixGPU.cpp
-        Common/cl.hpp
-        Common/device_picker.hpp
-        Common/err_code.h
-        Common/util.hpp
-        Common/wtime.c
         )
 
 link_directories(Common)
 
-add_executable(neuralnet src/main.cpp ${SOURCES})
+add_executable(gpu src/mainGPU.cpp ${SOURCES})
+add_executable(sinus src/mainSinus.cpp ${SOURCES})
+add_executable(mnist src/mainMNIST.cpp ${SOURCES})
 
-target_link_libraries(neuralnet OpenCL rt)
+target_link_libraries(gpu OpenCL rt)
+target_link_libraries(sinus OpenCL rt)
+target_link_libraries(mnist OpenCL rt)
