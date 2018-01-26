@@ -35,5 +35,5 @@ double CategoricalAccuracy::computeMetric(const Matrix& a, const Matrix& y) cons
              }
         }
     }
-    return 100 - n_errors * 100 / m;
+    return 1 - ((double) n_errors / m);
 }

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.11)
 
 project(HPC_GPU)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -fopenmp")
+set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -fopenmp -L/opt/amdgpu-pro/lib64  -lOpenCL -lrt")
 
 set(SOURCES
         src/Matrix.cpp
@@ -15,7 +15,16 @@ set(SOURCES
         src/Optimizer.cpp
         src/CostFunction.cpp
         src/Metric.cpp
+
+        src/GPU.cpp
+        src/MatrixGPU.cpp
+        Common/cl.hpp
+        Common/device_picker.hpp
+        Common/err_code.h
+        Common/util.hpp
+        Common/wtime.c
         )
 
 add_executable(sinus src/mainSinus.cpp ${SOURCES})
 add_executable(mnist src/mainMNIST.cpp ${SOURCES})
+add_executable(gpu src/mainGPU.cpp ${SOURCES})

@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+int DEVICE = 0;
 
 int main(int argc, char **argv) {
 
