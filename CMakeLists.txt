@@ -18,6 +18,7 @@ set(SOURCES
 
         src/GPU.cpp
         src/MatrixGPU.cpp
+        src/VectorGPU.cpp
         )
 
 link_directories(Common)

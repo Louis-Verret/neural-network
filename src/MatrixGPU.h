@@ -6,6 +6,7 @@
 #include "../Common/cl.hpp"
 #include "../Common/util.hpp"
 #include "GPU.h"
+#include "VectorGPU.h"
 
 class MatrixGPU {
 public:
@@ -19,11 +20,18 @@ public:
     int getPaddingM() const { return m_padding_m; };
     cl::Buffer getBuffer() const { return m_buffer; };
     const double &operator()(cl::CommandQueue& queue, int i, int j) const;
-    MatrixGPU operator*(const MatrixGPU &mat) const;
+    MatrixGPU operator*(const MatrixGPU& mat) const;
     MatrixGPU operator+(const MatrixGPU& mat) const;
     MatrixGPU operator-(const MatrixGPU& mat) const;
+    MatrixGPU operator/(const MatrixGPU& mat) const;
+    MatrixGPU operator+(const VectorGPU &vec) const;
+    VectorGPU operator*(const VectorGPU &vec) const;
+    MatrixGPU operator+(const double coeff) const;
+    MatrixGPU operator/(const double coeff) const;
     MatrixGPU hadamardProduct(const MatrixGPU& mat) const;
     MatrixGPU transpose() const;
+    MatrixGPU sqrt() const;
+    MatrixGPU log() const;
     double sumElem() const;
 
 protected:
@@ -35,6 +43,8 @@ protected:
 };
 
 std::ostream& operator << (std::ostream& out, const MatrixGPU& mat);
+MatrixGPU operator*(const double coeff, const MatrixGPU& mat);
+MatrixGPU operator-(const double coeff, const MatrixGPU& mat);
 
 
 #endif //MATRIXGPU

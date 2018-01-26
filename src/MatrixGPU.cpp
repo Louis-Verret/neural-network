@@ -138,6 +138,52 @@ MatrixGPU MatrixGPU::operator-(const MatrixGPU &mat) const {
     return res;
 }
 
+MatrixGPU MatrixGPU::operator/(const MatrixGPU &mat) const {
+    //std::cout << mat.getN() << " " << m_n << " " << mat.getM() << " " << m_m << std::endl;
+    if (mat.getN() != m_n || mat.getM() != m_m) {
+        throw std::logic_error("Invalid division Mat/Mat");
+    }
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_div_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::operator+(const double coeff) const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_add_coeff_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, coeff, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::operator/(const double coeff) const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_div_coeff_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, coeff, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
 MatrixGPU MatrixGPU::hadamardProduct(const MatrixGPU &mat) const {
     //std::cout << mat.getN() << " " << m_n << " " << mat.getM() << " " << m_m << std::endl;
     if (mat.getN() != m_n || mat.getM() != m_m) {
@@ -156,6 +202,66 @@ MatrixGPU MatrixGPU::hadamardProduct(const MatrixGPU &mat) const {
     return res;
 }
 
+MatrixGPU MatrixGPU::sqrt() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_sqrt_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::log() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_log_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer,res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+
+VectorGPU MatrixGPU::operator*(const VectorGPU &vec) const {
+    if (vec.getN() != m_m) {
+        throw std::logic_error("Invalid multiplication Mat*Vec");
+    }
+    VectorGPU res(m_n);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_vmul_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, vec.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::operator+(const VectorGPU &vec) const {
+    if (vec.getN() != m_n) {
+        throw std::logic_error("Invalid addition Mat+Vec");
+    }
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_add_vec_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, vec.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
 
 double MatrixGPU::sumElem() const {
 
@@ -182,6 +288,32 @@ double MatrixGPU::sumElem() const {
     }
 
     return s;
+}
+
+MatrixGPU operator*(const double coeff, const MatrixGPU& mat) {
+    MatrixGPU res(mat.getN(), mat.getM(), false);
+    cl::NDRange global(mat.getPaddingN(), mat.getPaddingM());
+    cl::NDRange local(16, 16);
+
+    GPU::mat_coeff_mul_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             mat.getPaddingN(), mat.getPaddingM(), coeff, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU operator-(const double coeff, const MatrixGPU& mat) {
+    MatrixGPU res(mat.getN(), mat.getM(), false);
+    cl::NDRange global(mat.getPaddingN(), mat.getPaddingM());
+    cl::NDRange local(16, 16);
+
+    GPU::mat_coeff_sub_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             mat.getPaddingN(), mat.getPaddingM(), coeff, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
 }
 
 std::ostream& operator << (std::ostream& out, const MatrixGPU& mat) {

@@ -63,7 +63,7 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
         }
         std::cout << "\nMean Error: " << error/batches_x.size();
         if (m_metric != NULL) {
-            std::cout << "\nMean Metric: " << metric/batches_x.size();
+            std::cout << "\nMean Metric: " << metric/batches_x.size() << std::endl;
         }
     }
     //std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;

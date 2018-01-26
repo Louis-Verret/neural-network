@@ -1,5 +1,6 @@
 #define TILE_WIDTH 32
 #define BLOCK_DIM 32
+#define BLOCK_DIM_2 16
 
 __kernel void mmul_naive(
    const int N, // size(A) = NxK
@@ -52,6 +53,61 @@ __kernel void mmul(const int M, const int K, const int N,
     barrier(CLK_LOCAL_MEM_FENCE);
   }
   d_P[Col*M+Row] = Pvalue;
+}
+
+__kernel void vmul(const int N, const int M,
+    __global double* mat, __global double* vec,
+    __global double* res)
+{
+  // __local double ds_mat[TILE_WIDTH][TILE_WIDTH];
+  // __local double ds_vec[TILE_WIDTH];
+  // int bx = get_group_id(0); int by = get_group_id(1);
+  // int tx = get_local_id(0); int ty = get_local_id(1);
+  // // Position de l'element de P sur lequel on travail
+  // int Row = bx * TILE_WIDTH + tx;
+  // int Col = by * TILE_WIDTH + ty;
+  // double Pvalue = 0;
+  // // Boucle sur l'ensemble les blocs de M et N necessaire pour
+  // // calculer un element de
+  // for (int m = 0; m < K/TILE_WIDTH; ++m) {
+  //   // Chargement collaboratif en memoire partagee
+  //   const int tiledRow = TILE_WIDTH*m + tx;
+  //   const int tiledCol = TILE_WIDTH*m + ty;
+  //   ds_M[ty][tx] = d_M[Col*K + tiledRow];
+  //   ds_N[ty][tx] = d_N[tiledCol*M + Row];
+  //   barrier(CLK_LOCAL_MEM_FENCE);
+  //   for (int k = 0; k < TILE_WIDTH; k++) {
+  //     Pvalue += ds_mat[ty][k] * ds_vec[k][tx];
+  //   }
+  //   barrier(CLK_LOCAL_MEM_FENCE);
+  // }
+  // d_P[Col*M+Row] = Pvalue;
+}
+
+__kernel void add_vector(const int N, const int M,
+    __global double* mat, __global double* vec,
+    __global double* res)
+{
+    __local double ds_mat[BLOCK_DIM][BLOCK_DIM];
+    __local double ds_vec[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(1);
+    unsigned int yIndex = get_global_id(0);
+
+    if((xIndex < M) && (yIndex < N))
+    {
+        unsigned int index_in = xIndex * M + yIndex;
+        ds_mat[get_local_id(1)][get_local_id(0)] = mat[index_in];
+        ds_vec[get_local_id(1)] = vec[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(1);
+    yIndex = get_group_id(1) * BLOCK_DIM + get_local_id(0);
+    if((xIndex < N) && (yIndex < M)) {
+        unsigned int index_out = xIndex * M + yIndex;
+        res[index_out] = ds_mat[get_local_id(1)][get_local_id(0)] + ds_vec[get_local_id(1)];
+    }
 }
 
 __kernel void transpose(int height, int width, __global double* idata, __global double* odata, __global double* block)
@@ -214,5 +270,349 @@ __kernel void mul(int height,  int width, __global double* idata1, __global doub
         unsigned int index_out = yIndex * height + xIndex;
         odata[index_out] = ds_M[get_local_id(1)][get_local_id(0)] * ds_N[get_local_id(1)][get_local_id(0)];
     }
+}
 
+__kernel void div(int height,  int width, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[TILE_WIDTH][TILE_WIDTH];
+    __local double ds_N[TILE_WIDTH][TILE_WIDTH];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        ds_M[get_local_id(1)][get_local_id(0)] = idata1[index_in];
+        ds_N[get_local_id(1)][get_local_id(0)] = idata2[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * TILE_WIDTH + get_local_id(0);
+    yIndex = get_group_id(0) * TILE_WIDTH + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = ds_M[get_local_id(1)][get_local_id(0)] / ds_N[get_local_id(1)][get_local_id(0)];
+    }
+}
+
+__kernel void add_coeff(int height,  int width, __global double* idata, double coeff, __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = block[get_local_id(1)][get_local_id(0)] + coeff;
+    }
+}
+
+__kernel void div_coeff(int height,  int width, __global double* idata, double coeff, __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = block[get_local_id(1)][get_local_id(0)] / coeff;
+    }
+}
+
+__kernel void sqrt_k(int height,  int width, __global double* idata, __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = sqrt(block[get_local_id(1)][get_local_id(0)]);
+    }
+}
+
+__kernel void log_k(int height,  int width, __global double* idata, __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = log(block[get_local_id(1)][get_local_id(0)]);
+    }
+}
+
+__kernel void coeff_mul(int height,  int width, double coeff, __global double* idata,  __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = coeff * block[get_local_id(1)][get_local_id(0)];
+    }
+}
+
+__kernel void coeff_sub(int height,  int width, double coeff, __global double* idata,  __global double *odata)
+{
+    __local double block[BLOCK_DIM_2][BLOCK_DIM_2];
+    unsigned int xIndex = get_global_id(0);
+    unsigned int yIndex = get_global_id(1);
+
+    if((xIndex < width) && (yIndex < height))
+    {
+        unsigned int index_in = yIndex * width + xIndex;
+        block[get_local_id(1)][get_local_id(0)] = idata[index_in];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(1) * BLOCK_DIM_2 + get_local_id(0);
+    yIndex = get_group_id(0) * BLOCK_DIM_2 + get_local_id(1);
+    if((xIndex < height) && (yIndex < width))
+    {
+        unsigned int index_out = yIndex * height + xIndex;
+        odata[index_out] = coeff - block[get_local_id(1)][get_local_id(0)];
+    }
+}
+
+__kernel void vector_add(int vector_length, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[BLOCK_DIM];
+    __local double ds_N[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        ds_M[get_local_id(0)] = idata1[xIndex];
+        ds_N[get_local_id(0)] = idata2[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = ds_M[get_local_id(0)] + ds_N[get_local_id(0)];
+    }
+
+}
+
+__kernel void vector_sub(int vector_length, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[BLOCK_DIM];
+    __local double ds_N[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        ds_M[get_local_id(0)] = idata1[xIndex];
+        ds_N[get_local_id(0)] = idata2[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = ds_M[get_local_id(0)] - ds_N[get_local_id(0)];
+    }
+
+}
+
+__kernel void vector_mul(int vector_length, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[BLOCK_DIM];
+    __local double ds_N[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        ds_M[get_local_id(0)] = idata1[xIndex];
+        ds_N[get_local_id(0)] = idata2[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = ds_M[get_local_id(0)] * ds_N[get_local_id(0)];
+    }
+
+}
+
+__kernel void vector_div(int vector_length, __global double* idata1, __global double* idata2, __global double *odata)
+{
+    __local double ds_M[BLOCK_DIM];
+    __local double ds_N[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        ds_M[get_local_id(0)] = idata1[xIndex];
+        ds_N[get_local_id(0)] = idata2[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = ds_M[get_local_id(0)] / ds_N[get_local_id(0)];
+    }
+
+}
+
+__kernel void vector_add_coeff(int vector_length, __global double* idata, double coeff, __global double *odata)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = idata[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = block[get_local_id(0)] + coeff;
+    }
+}
+
+__kernel void vector_div_coeff(int vector_length, __global double* idata, double coeff, __global double *odata)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = idata[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = block[get_local_id(0)] / coeff;
+    }
+}
+
+__kernel void vector_coeff_mul(int vector_length, double coeff, __global double* idata, __global double *odata)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = idata[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = coeff * block[get_local_id(0)];
+    }
+}
+
+__kernel void vector_sqrt(int vector_length, __global double* idata, __global double *odata)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = idata[xIndex];
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        odata[xIndex] = sqrt(block[get_local_id(0)]);
+    }
+}
+
+__kernel void vector_fill_with_zeros(int vector_length, __global double* idata)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = 0;
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        idata[xIndex] = block[get_local_id(0)];
+    }
+}
+
+__kernel void vector_fill_with(int vector_length, __global double* idata, double val)
+{
+    __local double block[BLOCK_DIM];
+    unsigned int xIndex = get_global_id(0);
+
+    if (xIndex < vector_length) {
+        block[get_local_id(0)] = val;
+    }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    xIndex = get_group_id(0) * BLOCK_DIM + get_local_id(0);
+    if (xIndex < vector_length) {
+        idata[xIndex] = block[get_local_id(0)];
+    }
 }
