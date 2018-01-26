@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
 
     try {
 
-        int n = 10000;
-        int k = 20000;
+        int n = 10;
+        int k = 20;
         int m = 10;
         int iter = 20;
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
         for (int i = 0; i<iter; i++) {
             start_time = omp_get_wtime();
             // Matrix m7 = m5.transpose();
-            m5.fillWithZeros();
+            m5.fillRandomly();
             time_mean += omp_get_wtime() - start_time;
         }
         printf("\n Matrix CPU init in %lf seconds\n", time_mean/iter);
@@ -88,12 +88,12 @@ int main(int argc, char **argv) {
         for (int i = 0; i<iter; i++) {
             start_time = omp_get_wtime();
             // MatrixGPU m4 = m2.transpose();
-            m2.fillWithZeros();
+            m2.fillRandomly();
             time_mean += omp_get_wtime() - start_time;
         }
         // m4 = m4 * m3;
         //MatrixGPU m4 = m1.transpose();
-        // std::cout << m2 << std::endl;
+        std::cout << m2 << std::endl;
         printf("\n Matrix GPU init in %lf seconds\n", time_mean/iter);
 
 

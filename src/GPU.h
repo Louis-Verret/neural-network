@@ -21,6 +21,7 @@ namespace GPU
     extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel;
     extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_add_kernel;
     extern cl::make_kernel<int, int, cl::Buffer> mat_fill_with_zeros_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer> mat_fill_randomly_kernel;
 
 }
 

@@ -25,6 +25,7 @@ public:
     double sumElem() const;
 
     void fillWithZeros();
+    void fillRandomly();
 
 protected:
     int m_padding_n;
