@@ -64,7 +64,7 @@ MatrixGPU MatrixGPU::operator*(const MatrixGPU &mat) const {
     cl::NDRange global(m_padding_n, mat.getPaddingM());
     cl::NDRange local(32, 32);
 
-    GPU::mat_mul_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+    GPU::mat_mmul_kernel(cl::EnqueueArgs(GPU::queue, global, local),
          m_padding_n, m_padding_m, mat.getPaddingM(), m_buffer, mat.getBuffer(), res.getBuffer());
 
     GPU::queue.finish();
@@ -113,6 +113,42 @@ MatrixGPU MatrixGPU::operator+(const MatrixGPU &mat) const {
     cl::NDRange local(32, 32);
 
     GPU::mat_add_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::operator-(const MatrixGPU &mat) const {
+    //std::cout << mat.getN() << " " << m_n << " " << mat.getM() << " " << m_m << std::endl;
+    if (mat.getN() != m_n || mat.getM() != m_m) {
+        throw std::logic_error("Invalid substraction Mat-Mat");
+    }
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_sub_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, mat.getBuffer(), res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::hadamardProduct(const MatrixGPU &mat) const {
+    //std::cout << mat.getN() << " " << m_n << " " << mat.getM() << " " << m_m << std::endl;
+    if (mat.getN() != m_n || mat.getM() != m_m) {
+        throw std::logic_error("Invalid Matrix Hadamard Product");
+    }
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_mul_kernel(cl::EnqueueArgs(GPU::queue, global, local),
                              m_padding_n, m_padding_m, m_buffer, mat.getBuffer(), res.getBuffer());
 
     GPU::queue.finish();
