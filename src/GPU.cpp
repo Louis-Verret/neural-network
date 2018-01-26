@@ -49,6 +49,11 @@ namespace GPU
             return sumElem;
         }
 
+        const cl::make_kernel<int, int, cl::Buffer>  initFillWithZerosKernel() {
+            static cl::make_kernel<int, int, cl::Buffer> fillWithZeros(GPU::program, "fill_with_zeros");
+            return fillWithZeros;
+        }
+
         cl::Context context = initContext();
         cl::Program program = initProgram();
         cl::CommandQueue queue = initQueue();
@@ -56,5 +61,5 @@ namespace GPU
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_tranpose_kernel = initMatTransposeKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_add_kernel = initMatAddKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel = initMatSumElemKernel();
-
+        cl::make_kernel<int, int, cl::Buffer>  mat_fill_with_zeros_kernel = initFillWithZerosKernel();
 }

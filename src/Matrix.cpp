@@ -330,7 +330,7 @@ void Matrix::fillRandomly() {
     }
 }
 
-void Matrix::fillWithZero() {
+void Matrix::fillWithZeros() {
     int i;
     #pragma omp parallel private(i)
     {

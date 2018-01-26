@@ -27,7 +27,7 @@ public:
     //Vector& operator=(const Vector& mat);
 
     void fillRandomly();
-    void fillWithZero();
+    void fillWithZeros();
     Vector sqrt() const;
 
 protected:

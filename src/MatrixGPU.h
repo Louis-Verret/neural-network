@@ -24,6 +24,8 @@ public:
     MatrixGPU transpose() const;
     double sumElem() const;
 
+    void fillWithZeros();
+
 protected:
     int m_padding_n;
     int m_padding_m;

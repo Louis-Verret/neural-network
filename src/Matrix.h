@@ -32,7 +32,7 @@ public:
     Matrix& operator=(const Matrix& mat);
 
     void fillRandomly();
-    void fillWithZero();
+    void fillWithZeros();
     Matrix transpose() const;
     double sumElem() const;
     void resize(int new_n, int new_m);

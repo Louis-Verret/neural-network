@@ -148,6 +148,16 @@ double MatrixGPU::sumElem() const {
     return s;
 }
 
+void MatrixGPU::fillWithZeros() {
+    cl::NDRange global(m_padding_m, m_padding_n);
+    cl::NDRange local(32, 32);
+
+    GPU::mat_fill_with_zeros_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+         m_padding_n, m_padding_m, m_buffer);
+
+    GPU::queue.finish();
+}
+
 std::ostream& operator << (std::ostream& out, const MatrixGPU& mat) {
     int n = mat.getN(); int m = mat.getM();
     std::vector<double> mat_copy(mat.getPaddingN()*mat.getPaddingM());
