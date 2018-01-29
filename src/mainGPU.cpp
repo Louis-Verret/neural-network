@@ -40,22 +40,23 @@ int main(int argc, char **argv) {
         printf("\n Matri1000x CPU multiplications in %lf seconds\n", time_mean/iter);
 
         MatrixGPU m2(n, k);
-        //MatrixGPU m3(k, m);
+        MatrixGPU m3(k, m);
+        m2.fillRandomly();
+        m3.fillRandomly();
         // MatrixGPU m3(m, n);
         // VectorGPU v1(n);
-        m2.fillRandomly();
+        // v1.fillRandomly();
         // VectorGPU v2(n);
         // VectorGPU v0(n);
         // std::cout << v1 << std::endl;
         //std::cout << v2 << std::endl;
-        std::cout << m2 << std::endl;
         //std::cout << m3 << std::endl;
         // std::cout << (m2 * m3) << std::endl;
         // std::cout << ((m2 * m3) + m2) << std::endl;
         time_mean = 0;
         for (int i = 0; i<iter; i++) {
             start_time = omp_get_wtime();
-            MatrixGPU m4 = m2.argmax();
+            MatrixGPU m4 = m2 * m3;
             //VectorGPU v3 = (3 * v2).sqrt();
             time_mean += omp_get_wtime() - start_time;
             std::cout << m4 << std::endl;

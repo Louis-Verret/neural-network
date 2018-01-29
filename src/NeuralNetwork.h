@@ -7,6 +7,7 @@
 #include "Optimizer.h"
 #include "CostFunction.h"
 #include "Metric.h"
+#include "MatrixGPU.h"
 
 class NeuralNetwork
 {
@@ -35,7 +36,7 @@ protected:
 
     void propagate(Matrix& input);
     void backpropagate(const Matrix& y, const int batch_size, int epoch_num);
-    void separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size);
+    void separateDataInBatches(Matrix& x, Matrix& y, std::vector<MatrixGPU>& batches_x, std::vector<MatrixGPU>& batches_y, const int batch_size);
 };
 
 std::ostream& operator << (std::ostream& out, const NeuralNetwork& net);
