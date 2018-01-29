@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
         //MatrixGPU m3(k, m);
         // MatrixGPU m3(m, n);
         // VectorGPU v1(n);
-        // v1.fillRandomly();
+        m2.fillRandomly();
         // VectorGPU v2(n);
         // VectorGPU v0(n);
         // std::cout << v1 << std::endl;

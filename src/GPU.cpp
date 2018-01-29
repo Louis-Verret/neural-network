@@ -99,11 +99,6 @@ namespace GPU
             return fillWithZeros;
         }
 
-        const cl::make_kernel<int, int, cl::Buffer>  initFillRandomlyKernel() {
-            static cl::make_kernel<int, int, cl::Buffer> FillRandomly(GPU::program, "fill_randomly");
-            return FillRandomly;
-        }
-
         const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatSqrtKernel() {
             static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> sqrt_k(GPU::program, "sqrt_k");
             return sqrt_k;
@@ -183,7 +178,6 @@ namespace GPU
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel = initMatSumElemKernel();
 
         cl::make_kernel<int, int, cl::Buffer>  mat_fill_with_zeros_kernel = initFillWithZerosKernel();
-        cl::make_kernel<int, int, cl::Buffer>  mat_fill_randomly_kernel = initFillRandomlyKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sqrt_kernel = initMatSqrtKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_log_kernel = initMatLogKernel();
 

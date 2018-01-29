@@ -11,7 +11,7 @@
 class MatrixGPU {
 public:
     MatrixGPU();
-    MatrixGPU(int n, int m, bool init = true);
+    MatrixGPU(int n, int m);
     ~MatrixGPU();
 
     int getN() const { return m_n; };
