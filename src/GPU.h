@@ -25,6 +25,15 @@ namespace GPU
     extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sqrt_kernel;
     extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_log_kernel;
 
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_linear_dev_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sigmoid_eval_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sigmoid_dev_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_tanh_eval_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_tanh_dev_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_relu_eval_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_relu_dev_kernel;
+    extern cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_softmax_eval_kernel;
+
     extern cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vec_add_kernel;
     extern cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vec_sub_kernel;
     extern cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vec_mul_kernel;

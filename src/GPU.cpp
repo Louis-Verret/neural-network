@@ -104,6 +104,47 @@ namespace GPU
             return log_k;
         }
 
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatLinearDevKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> linear_dev(GPU::program, "linear_dev");
+            return linear_dev;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatTanhEvalKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> tanh_eval(GPU::program, "tanh_eval");
+            return tanh_eval;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatTanhDevKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> tanh_dev(GPU::program, "tanh_dev");
+            return tanh_dev;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatReLUEvalKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> tanh_eval(GPU::program, "relu_eval");
+            return tanh_eval;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatReLUDevKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> tanh_dev(GPU::program, "relu_dev");
+            return tanh_dev;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatSigmoidEvalKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> sigmoid_eval(GPU::program, "sigmoid_eval");
+            return sigmoid_eval;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer>  initMatSigmoidDevKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer> sigmoid_dev(GPU::program, "sigmoid_dev");
+            return sigmoid_dev;
+        }
+
+        const cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer>  initMatSoftmaxEvalKernel() {
+            static cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> softmax_dev(GPU::program, "softmax_eval");
+            return softmax_dev;
+        }
+
+
         const cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> initVecAddKernel() {
             static cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vectorAdd(GPU::program, "vector_add");
             return vectorAdd;
@@ -173,6 +214,15 @@ namespace GPU
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sum_elem_kernel = initMatSumElemKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sqrt_kernel = initMatSqrtKernel();
         cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_log_kernel = initMatLogKernel();
+
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_linear_dev_kernel = initMatLinearDevKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sigmoid_eval_kernel = initMatSigmoidEvalKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_sigmoid_dev_kernel = initMatSigmoidDevKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_tanh_eval_kernel = initMatTanhEvalKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_tanh_dev_kernel = initMatTanhDevKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_relu_eval_kernel = initMatReLUEvalKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer> mat_relu_dev_kernel = initMatReLUDevKernel();
+        cl::make_kernel<int, int, cl::Buffer, cl::Buffer, cl::Buffer> mat_softmax_eval_kernel = initMatSoftmaxEvalKernel();
 
         cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vec_add_kernel = initVecAddKernel();
         cl::make_kernel<int, cl::Buffer, cl::Buffer, cl::Buffer> vec_sub_kernel = initVecSubKernel();

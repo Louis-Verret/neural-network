@@ -369,6 +369,115 @@ void Matrix::resize(int new_n, int new_m) {
     m_m = new_m;
 }
 
+Matrix Matrix::computeLinearDev() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = 1;
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeSigmoidEval() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = 1.0 / (1.0 + exp(-(*this)(i, j)));
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeSigmoidDev() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            double eval = 1.0 / (1.0 + exp(-(*this)(i, j)));
+            result(i, j) = (eval) * (1 - eval);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeTanhEval() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = std::tanh((*this)(i, j));
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeTanhDev() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            double eval =  std::tanh((*this)(i, j));
+            result(i, j) = 1 - std::pow(eval, 2);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeReLUEval() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = std::max(0.0, (*this)(i, j));
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeReLUDev() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            if ((*this)(i, j) > 0) {
+                result(i, j) = 1;
+            } else {
+                result(i, j) = 0;
+            }
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::computeSoftmaxEval() const {
+    int n = m_n;
+    int m = m_m;
+    Matrix result(n, m);
+    Vector sum_expo(m, 0);
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            sum_expo(j) += std::exp((*this)(i, j));
+        }
+    }
+    for (int i = 0; i<n ; i++) {
+        for (int j = 0; j<m ; j++) {
+            result(i, j) = std::exp((*this)(i, j)) / sum_expo(j);
+        }
+    }
+    return result;
+}
+
+
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
     //out << "Size ("  << n << " * " << m << ")" << std::endl ;

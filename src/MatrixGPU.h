@@ -6,6 +6,7 @@
 #include "../Common/cl.hpp"
 #include "../Common/util.hpp"
 #include "GPU.h"
+#include <cmath>
 #include "VectorGPU.h"
 
 class MatrixGPU {
@@ -33,6 +34,15 @@ public:
     MatrixGPU sqrt() const;
     MatrixGPU log() const;
     double sumElem() const;
+
+    MatrixGPU computeLinearDev() const;
+    MatrixGPU computeSigmoidEval() const;
+    MatrixGPU computeSigmoidDev() const;
+    MatrixGPU computeReLUEval() const;
+    MatrixGPU computeReLUDev() const;
+    MatrixGPU computeTanhEval() const;
+    MatrixGPU computeTanhDev() const;
+    MatrixGPU computeSoftmaxEval() const;
 
 protected:
     int m_padding_n;

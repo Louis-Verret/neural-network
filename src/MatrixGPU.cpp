@@ -290,6 +290,128 @@ double MatrixGPU::sumElem() const {
     return s;
 }
 
+MatrixGPU MatrixGPU::computeLinearDev() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_linear_dev_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeSigmoidEval() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_sigmoid_eval_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeSigmoidDev() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_sigmoid_dev_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeReLUEval() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_relu_eval_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeReLUDev() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_relu_dev_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeTanhEval() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_tanh_eval_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeTanhDev() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    GPU::mat_tanh_dev_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
+MatrixGPU MatrixGPU::computeSoftmaxEval() const {
+
+    MatrixGPU res(m_n, m_m, false);
+    std::vector<double> mat_copy(m_padding_n * m_padding_m);
+    std::vector<double> sum_exp(m_padding_m, 0);
+    cl::copy(GPU::queue, m_buffer, mat_copy.begin(), mat_copy.end());
+    for (int i = 0; i < m_n; i++) {
+        for (int j = 0; j < m_m; j++) {
+            sum_exp[j] += std::exp(mat_copy[m_padding_m * i + j]);
+        }
+    }
+    cl::NDRange global(m_padding_n, m_padding_m);
+    cl::NDRange local(16, 16);
+
+    cl::Buffer buffer = cl::Buffer(GPU::context, sum_exp.begin(), sum_exp.end(), true);
+
+    GPU::mat_softmax_eval_kernel(cl::EnqueueArgs(GPU::queue, global, local),
+                             m_padding_n, m_padding_m, buffer, m_buffer, res.getBuffer());
+
+    GPU::queue.finish();
+
+    return res;
+}
+
 MatrixGPU operator*(const double coeff, const MatrixGPU& mat) {
     MatrixGPU res(mat.getN(), mat.getM(), false);
     cl::NDRange global(mat.getPaddingN(), mat.getPaddingM());

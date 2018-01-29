@@ -154,7 +154,7 @@ void VectorGPU::fillRandomly() {
     srand(time(NULL));
     std::vector<double> vec_cpu(m_padding_n, 0);
     for (int i = 0; i<m_n; i++) {
-        vec_cpu[i] = ((double) rand() / (double) RAND_MAX);
+        vec_cpu[i] = (int)(((double) rand() / (double) RAND_MAX) * 10 - 5);
     }
     m_buffer = cl::Buffer(GPU::context, vec_cpu.begin(), vec_cpu.end(), true);
 }

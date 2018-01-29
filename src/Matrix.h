@@ -42,6 +42,15 @@ public:
     Matrix argmax() const;
     Matrix hadamardProduct(const Matrix &mat2) const;
 
+    Matrix computeLinearDev() const;
+    Matrix computeSigmoidEval() const;
+    Matrix computeSigmoidDev() const;
+    Matrix computeReLUEval() const;
+    Matrix computeReLUDev() const;
+    Matrix computeTanhEval() const;
+    Matrix computeTanhDev() const;
+    Matrix computeSoftmaxEval() const;
+
 protected:
     int m_n;
     int m_m;
