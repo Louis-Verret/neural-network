@@ -21,12 +21,12 @@ public:
     void setWeights(Matrix& weights) {m_weights = weights;};
     void setLastWeights(Matrix& V_dW) {m_V_dW = V_dW;};
     void setLastWeights2(Matrix& S_dW) {m_S_dW = S_dW;};
-    Vector getBias() const {return m_bias;};
-    Vector getLastBias() const {return m_V_dB;};
-    Vector getLastBias2() const {return m_S_dB;};
-    void setBias(Vector& bias) {m_bias = bias;};
-    void setLastBias(Vector& V_dB) {m_V_dB = V_dB;};
-    void setLastBias2(Vector& S_dB) {m_S_dB = S_dB;};
+    VectorGPU getBias() const {return m_bias;};
+    VectorGPU getLastBias() const {return m_V_dB;};
+    VectorGPU getLastBias2() const {return m_S_dB;};
+    void setBias(VectorGPU& bias) {m_bias = bias;};
+    void setLastBias(VectorGPU& V_dB) {m_V_dB = V_dB;};
+    void setLastBias2(VectorGPU& S_dB) {m_S_dB = S_dB;};
     void setDropout(double dropout_rate) {m_dropout_rate = dropout_rate;};
     ActivationFunction* getActivationFunction() const {return m_f;};
 
@@ -40,9 +40,9 @@ protected:
     Matrix m_weights;
     Matrix m_V_dW;
     Matrix m_S_dW;
-    Vector m_bias;
-    Vector m_V_dB;
-    Vector m_S_dB;
+    VectorGPU m_bias;
+    VectorGPU m_V_dB;
+    VectorGPU m_S_dB;
     ActivationFunction* m_f;
     double m_dropout_rate = 0;
 };

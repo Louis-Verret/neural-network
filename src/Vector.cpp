@@ -160,7 +160,7 @@ void Vector::fillRandomly() {
     };
 }
 
-void Vector::fillWithZero() {
+void Vector::fillWithZeros() {
     #pragma omp parallel
     {
         #pragma omp for

@@ -20,11 +20,11 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name, bool 
 {
     if (init) {
         m_weights.fillRandomly();
-        m_V_dW.fillWithZero();
-        m_S_dW.fillWithZero();
+        m_V_dW.fillWithZeros();
+        m_S_dW.fillWithZeros();
         m_bias.fillRandomly();
-        m_V_dB.fillWithZero();
-        m_S_dB.fillWithZero();
+        m_V_dB.fillWithZeros();
+        m_S_dB.fillWithZeros();
         // double weights_init = 4 * std::sqrt(6 / (neurons_number + input_dim));
         // for (int i = 0; i < m_neurons_number; i++) {
         //     double r = ((double) rand() / (double) RAND_MAX) * 2 * weights_init - weights_init;
@@ -49,20 +49,21 @@ Layer::Layer(int input_dim, int neurons_number, char const* function_name, bool 
 }
 
 Matrix Layer::multiply(const Matrix& input) {
+    // std::cout << input.getN() << " " << input.getM() << std::endl;
+    // std::cout << input << std::endl;
+    // std::cout << m_weights << std::endl;
     return m_weights * input;
 }
 
 Matrix Layer::add(Matrix v) {
+    // std::cout << v.getN() << " " << v.getM() << std::endl;
+    // std::cout << v << std::endl;
+    // std::cout << m_bias << std::endl;
     return v + m_bias;
 }
 
 Matrix Layer::activate(const Matrix& x) {
-    if (m_dropout_rate != 0) {
-        Matrix bit_mat = Matrix::generateBitMatrix(x.getN(), x.getM(), 1 - m_dropout_rate);
-        return (m_f->eval(x).hadamardProduct(bit_mat)) / m_dropout_rate;
-    } else {
-        return m_f->eval(x);
-    }
+    return m_f->eval(x);
 }
 
 std::ostream& operator << (std::ostream& out, const Layer& layer) {

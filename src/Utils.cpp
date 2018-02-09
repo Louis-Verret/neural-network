@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cmath>
 
-void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
+void readCSV(const char* file_name, bool header, MatrixCPU& x, MatrixCPU& y) {
     std::ifstream file(file_name);
     std::string value;
     std::vector<std::vector<double> > read_x;
@@ -72,7 +72,7 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
     }
 }
 
-void normalizeData(Matrix& x) {
+void normalizeData(MatrixCPU& x) {
     double mean = 0;
     double sd = 0;
     int i, j;
@@ -104,7 +104,7 @@ void normalizeData(Matrix& x) {
     }
 }
 
-void centralizeData(Matrix& x, double min_value, double max_value) {
+void centralizeData(MatrixCPU& x, double min_value, double max_value) {
     if (min_value == 0 && max_value == 0) {
         min_value = x(0, 0);
         max_value = x(0, 0);
@@ -127,7 +127,7 @@ void centralizeData(Matrix& x, double min_value, double max_value) {
     }
 }
 
-void generateSinusData(Matrix& x, Matrix& y, int s) {
+void generateSinusData(MatrixCPU& x, MatrixCPU& y, int s) {
     srand(time(NULL));
     int lower_bound_x = -4, upper_bound_x = 4;
     int lower_bound_y = -1, upper_bound_y = 1;
@@ -144,9 +144,9 @@ void generateSinusData(Matrix& x, Matrix& y, int s) {
     }
 }
 
-void oneHotEncoding(Matrix& y, int n_class) {
+void oneHotEncoding(MatrixCPU& y, int n_class) {
     int m = y.getM();
-    Matrix y_copy = y;
+    MatrixCPU y_copy = y;
     y.resize(n_class, m);
     for (int j = 0; j < m; j++) {
         int val = y_copy(0, j);

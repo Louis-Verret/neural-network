@@ -1,11 +1,9 @@
-#include "NeuralNetwork.h"
-#include "Utils.h"
-#include "Optimizer.h"
 #include <omp.h>
 #include <iostream>
-#include "MatrixGPU.h"
 #include "VectorGPU.h"
 #include "../Common/err_code.h"
+#include "Matrix.h"
+#include "MatrixCPU.h"
 
 int DEVICE = 0;
 
@@ -13,64 +11,100 @@ int main(int argc, char **argv) {
 
     try {
 
-        int n = 3;
-        int k = 5;
-        int m = 1000;
+        /** INIT */
+
+        int n = 3000;
+        int k = 3000; //576
+        int m = 3000;
         int iter = 1;
 
-        Vector v4(k);
-        //Vector v5(n);
-        Matrix m5 = Matrix(n, k);
-        //Matrix m6 = Matrix(k, m);
-        // // Matrix m7 = Matrix(m, n);
-        //m5.fillWithZero();
-        //std::cout << m5 << std::endl;
-        m5.fillRandomly();
-        v4.fillRandomly();
-        //v5.fillRandomly();
+        srand(time(NULL));
+
+        std::vector<double> random_vec_1 (n * k);
+        std::vector<double> random_vec_2 (k * m);
+        for (int i = 0; i < n * k; i++)
+            random_vec_1[i] = ((double) rand() / (double) RAND_MAX);
+        for (int i = 0; i < k * m; i++)
+            random_vec_2[i] = ((double) rand() / (double) RAND_MAX);
+
+
+        /** CPU **/
+
+        MatrixCPU m0(n, k);
+        MatrixCPU m1(k, m);
+        MatrixCPU m2(n, m);
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < k; j++)
+                m0(i, j) = random_vec_1[i * k + j];
+        for (int i = 0; i < k; i++)
+            for (int j = 0; j < m; j++)
+                m1(i, j) = random_vec_1[i * m + j];
 
         double start_time;
         double time_mean = 0;
         for (int i = 0; i<iter; i++) {
             start_time = omp_get_wtime();
-            Vector m7 = m5 * v4;
-            // Vector v6 = (3 * v4).sqrt();
+            m0 = m0 + m1;
             time_mean += omp_get_wtime() - start_time;
         }
-        printf("\n Matri1000x CPU multiplications in %lf seconds\n", time_mean/iter);
 
-        MatrixGPU m2(n, k);
-        //MatrixGPU m3(k, m);
-        // MatrixGPU m3(m, n);
-        VectorGPU v1(k);
-        v1.fillRandomly();
-        // VectorGPU v2(n);
-        // VectorGPU v0(n);
-        std::cout << v1 << std::endl;
-        //std::cout << v2 << std::endl;
-        std::cout << m2 << std::endl;
-        //std::cout << m3 << std::endl;
-        // std::cout << (m2 * m3) << std::endl;
-        // std::cout << ((m2 * m3) + m2) << std::endl;
+        printf("\n Matrix CPU multiplications in %lf seconds\n", time_mean/iter);
+
+
+        /** GPU **/
+
+        Matrix m3(n, k);
+        Matrix m4(k, m);
+        Matrix m5(n, m);
+
+        std::vector<double> m3_vec(m3.getPaddingM() * m3.getPaddingN());
+        std::vector<double> m4_vec(m4.getPaddingM() * m4.getPaddingN());
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < k; j++)
+                m3_vec[i * m3.getPaddingM() + j] = random_vec_1[i * k + j];
+
+
+        for (int i = 0; i < k; i++)
+            for (int j = 0; j < m; j++)
+                m4_vec[i * m4.getPaddingM() + j] = random_vec_1[i * m + j];
+
+        cl::Buffer m3_buffer = cl::Buffer(GPU::context, m3_vec.begin(), m3_vec.end(), true);
+        cl::Buffer m4_buffer = cl::Buffer(GPU::context, m4_vec.begin(), m4_vec.end(), true);
+        m3.setBuffer(m3_buffer);
+        m4.setBuffer(m4_buffer);
+
         time_mean = 0;
         for (int i = 0; i<iter; i++) {
             start_time = omp_get_wtime();
-            MatrixGPU m4 = m2.computeTanhEval();
-            MatrixGPU m5 = m2.computeSigmoidEval();
-            MatrixGPU m6 = m2.computeSigmoidDev();
-            MatrixGPU m7 = m2.computeReLUDev();
-            MatrixGPU m8 = m2.computeSoftmaxEval();
-            //VectorGPU v3 = (3 * v2).sqrt();
+            m3 = m3 + m4;
             time_mean += omp_get_wtime() - start_time;
-            std::cout << m4 << std::endl;
-            std::cout << m5 << std::endl;
-            std::cout << m6 << std::endl;
-            std::cout << m7 << std::endl;
-            std::cout << m8 << std::endl;
         }
-        // m4 = m4 * m3;
-        //MatrixGPU m4 = m1.transpose();
         printf("\n Matrix GPU multiplications in %lf seconds\n", time_mean/iter);
+
+        std::vector<double> mat_copy(m3.getPaddingN()*m3.getPaddingM());
+        cl::copy(GPU::queue, m3.getBuffer(), mat_copy.begin(), mat_copy.end());
+
+
+        /** Checking the results */
+
+        bool all_same = true;
+        double eps = 1e-7;
+        for (int i = 0; i < m3.getN(); i++) {
+            for (int j = 0; j < m3.getM(); j++) {
+                if (abs(mat_copy[i * m3.getPaddingM() + j] - m0(i, j)) > eps) {
+                    all_same = false;
+                    break;
+                }
+            }
+        }
+        if (all_same) {
+            std::cout << "\n CORRECT results" << std::endl;
+        } else {
+            std::cout << "\n INCORRECT results" << std::endl;
+        }
+
 
 
     } catch (cl::Error err) {

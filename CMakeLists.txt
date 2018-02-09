@@ -17,7 +17,7 @@ set(SOURCES
         src/Metric.cpp
 
         src/GPU.cpp
-        src/MatrixGPU.cpp
+        src/MatrixCPU.cpp
         src/VectorGPU.cpp
         )
 

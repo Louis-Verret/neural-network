@@ -25,7 +25,7 @@ VectorGPU::VectorGPU(int n, double val) : m_n(n) {
     cl::NDRange local(32);
 
     GPU::vec_fill_with_kernel(cl::EnqueueArgs(GPU::queue, global, local),
-                             m_padding_n, m_buffer, val);
+                             m_padding_n, m_n, m_buffer, val);
 
     GPU::queue.finish();
 }
@@ -91,7 +91,7 @@ VectorGPU VectorGPU::operator/(const VectorGPU &vec) const {
     cl::NDRange local(32);
 
     GPU::vec_div_kernel(cl::EnqueueArgs(GPU::queue, global, local),
-                             m_padding_n, m_buffer, vec.getBuffer(), res.getBuffer());
+                             m_padding_n, m_n, m_buffer, vec.getBuffer(), res.getBuffer());
 
     GPU::queue.finish();
 
@@ -104,7 +104,7 @@ VectorGPU VectorGPU::operator+(const double coeff) const {
     cl::NDRange local(32);
 
     GPU::vec_add_coeff_kernel(cl::EnqueueArgs(GPU::queue, global, local),
-                             m_padding_n, m_buffer, coeff, res.getBuffer());
+                             m_padding_n, m_n, m_buffer, coeff, res.getBuffer());
 
     GPU::queue.finish();
 
@@ -151,10 +151,9 @@ VectorGPU operator*(const double coeff, const VectorGPU &v) {
 }
 
 void VectorGPU::fillRandomly() {
-    srand(time(NULL));
     std::vector<double> vec_cpu(m_padding_n, 0);
     for (int i = 0; i<m_n; i++) {
-        vec_cpu[i] = (int)(((double) rand() / (double) RAND_MAX) * 10 - 5);
+        vec_cpu[i] = ((double) rand() / (double) RAND_MAX);
     }
     m_buffer = cl::Buffer(GPU::context, vec_cpu.begin(), vec_cpu.end(), true);
 }
@@ -173,7 +172,7 @@ std::ostream& operator << (std::ostream& out, const VectorGPU& vec) {
     int n = vec.getN();
     std::vector<double> vec_copy(vec.getPaddingN());
     cl::copy(GPU::queue, vec.getBuffer(), vec_copy.begin(), vec_copy.end());
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < vec.getPaddingN(); i++) {
         out << vec_copy[i] << " ";
     }
     out << std::endl;

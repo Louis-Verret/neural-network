@@ -7,6 +7,7 @@
 #include "Optimizer.h"
 #include "CostFunction.h"
 #include "Metric.h"
+#include "MatrixCPU.h"
 
 class NeuralNetwork
 {
@@ -14,7 +15,7 @@ public:
     NeuralNetwork();
     ~NeuralNetwork();
     NeuralNetwork(Optimizer* optimizer, char const* cost_name, char const* metric_name = "none");
-    void fit(Matrix& x, Matrix& y, int epoch, const int batch_size);
+    void fit(MatrixCPU& x, MatrixCPU& y, int epoch, const int batch_size);
     void validate(Matrix& x, Matrix& y);
     Matrix predict(Matrix& xi);
     void addLayer(int neurons_number, char const* function_name, int input_dim = 0);
@@ -35,7 +36,7 @@ protected:
 
     void propagate(Matrix& input);
     void backpropagate(const Matrix& y, const int batch_size, int epoch_num);
-    void separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size);
+    void separateDataInBatches(MatrixCPU& x, MatrixCPU& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size);
 };
 
 std::ostream& operator << (std::ostream& out, const NeuralNetwork& net);

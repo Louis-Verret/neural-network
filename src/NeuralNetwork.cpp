@@ -35,7 +35,7 @@ NeuralNetwork::~NeuralNetwork() {
     }
 }
 
-void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
+void NeuralNetwork::fit(MatrixCPU& x, MatrixCPU& y, int epoch, const int batch_size) {
     std::vector<Matrix> batches_x;
     std::vector<Matrix> batches_y;
     separateDataInBatches(x, y, batches_x, batches_y, batch_size);
@@ -61,16 +61,16 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
             pb.display(progress, batch_error, batch_metric);
             //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
-        std::cout << "\nMean Error: " << error/batches_x.size();
+        std::cout << "\nMean Error: " << error/batches_x.size() << std::endl;
         if (m_metric != NULL) {
-            std::cout << "\nMean Metric: " << metric/batches_x.size() << std::endl;
+            std::cout << "Mean Metric: " << metric/batches_x.size() << std::endl;
         }
     }
-    //std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
+    std::cout << "Predicted/Label: " << m_a.back() << " " << batches_y[nb_batches-1] << std::endl;
 
 }
 
-void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size) {
+void NeuralNetwork::separateDataInBatches(MatrixCPU& x, MatrixCPU& y, std::vector<Matrix>& batches_x, std::vector<Matrix>& batches_y, const int batch_size) {
     for (int i = 0; i<x.getM(); i+=batch_size) {
         int bound = 0;
         if (i + batch_size < x.getM()) {
@@ -80,15 +80,22 @@ void NeuralNetwork::separateDataInBatches(Matrix& x, Matrix& y, std::vector<Matr
         }
         Matrix xi(x.getN(), bound);
         Matrix yi(y.getN(), bound);
-        for (int k = 0; k<bound; k++) {
-            for (int j = 0; j<x.getN(); j++) {
-                xi(j, k) = x(j, i + k);
+        std::vector<double> vec_xi(xi.getPaddingM() * xi.getPaddingN());
+        std::vector<double> vec_yi(yi.getPaddingM() * yi.getPaddingN());
+        for (int k = 0; k < bound; k++) {
+            for (int j = 0; j < x.getN(); j++) {
+                vec_xi[j * xi.getPaddingM() + k] = x(j, i + k);
             }
             for (int j = 0; j<y.getN(); j++) {
-                yi(j, k) = y(j, i + k);
+                vec_yi[j * yi.getPaddingM() + k] = y(j, i + k);
             }
         }
+        cl::Buffer buffer_xi = cl::Buffer(GPU::context, vec_xi.begin(), vec_xi.end(), true);
+        xi.setBuffer(buffer_xi);
         batches_x.push_back(xi);
+
+        cl::Buffer buffer_yi = cl::Buffer(GPU::context, vec_yi.begin(), vec_yi.end(), true);
+        yi.setBuffer(buffer_yi);
         batches_y.push_back(yi);
     }
 }
@@ -169,13 +176,13 @@ void NeuralNetwork::load(const char* file_name) {
         for (int i = 0; i < neurons_number; i++) {
             for (int j = 0; j < input_dim; j++) {
                 fscanf(file, "%f", &(value));
-                weights(i, j) = value;
+                //weights(i, j) = value;
             }
         }
-        Vector bias(neurons_number);
+        VectorGPU bias(neurons_number);
         for (int j = 0; j < neurons_number; j++) {
             fscanf(file, "%f", &(value));
-            bias(j) = value;
+            //bias(j) = value;
         }
         if (l == 0) {
             addLayer(neurons_number, activation_function_as_char, input_dim);
@@ -199,7 +206,7 @@ void NeuralNetwork::propagate(Matrix& input) {
 }
 
 void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epoch_num) {
-    Matrix delta_suiv;
+    Matrix delta_suiv(y.getN(), y.getM());
     if (strcmp(m_C->getName(), "cross_entropy") == 0 && strcmp(m_layers.back()->getActivationFunction()->getName(), "softmax") == 0) {
         delta_suiv = m_a.back() - y;
     } else {

@@ -33,10 +33,10 @@ void SGD::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int 
 }
 
 void SGD::updateBias(Layer* layer, const Matrix& delta, int batch_size, int epoch_num) const {
-    Vector ones(delta.getM(), 1);
-    Vector dB = (delta * ones) / batch_size;
-    Vector V_dB = dB + m_momentum * layer->getLastBias();
-    Vector new_bias = layer->getBias() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * V_dB;
+    VectorGPU ones(delta.getM(), 1.0);
+    VectorGPU dB = (delta * ones) / batch_size;
+    VectorGPU V_dB = dB + m_momentum * layer->getLastBias();
+    VectorGPU new_bias = layer->getBias() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * V_dB;
     layer->setLastBias(V_dB);
     layer->setBias(new_bias);
 }
@@ -69,13 +69,13 @@ void Adam::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int
 }
 
 void Adam::updateBias(Layer* layer, const Matrix& delta, int batch_size, int epoch_num) const {
-    Vector ones(delta.getM(), 1);
-    Vector dB = (delta * ones) / batch_size;
-    Vector V_dB = (1 - m_beta_1) * dB + m_beta_1 * layer->getLastBias();
-    Vector S_dB = (1 - m_beta_2) * (dB*dB) + m_beta_2 * layer->getLastBias2();
-    Vector V_dB_corrected = V_dB / (1 - std::pow(m_beta_1, epoch_num));
-    Vector S_dB_corrected = S_dB / (1 - std::pow(m_beta_2, epoch_num));
-    Vector new_bias = layer->getBias() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * (V_dB_corrected / (S_dB_corrected.sqrt() + m_epsilon));
+    VectorGPU ones(delta.getM(), 1.0);
+    VectorGPU dB = (delta * ones) / batch_size;
+    VectorGPU V_dB = (1 - m_beta_1) * dB + m_beta_1 * layer->getLastBias();
+    VectorGPU S_dB = (1 - m_beta_2) * (dB*dB) + m_beta_2 * layer->getLastBias2();
+    VectorGPU V_dB_corrected = V_dB / (1 - std::pow(m_beta_1, epoch_num));
+    VectorGPU S_dB_corrected = S_dB / (1 - std::pow(m_beta_2, epoch_num));
+    VectorGPU new_bias = layer->getBias() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * (V_dB_corrected / (S_dB_corrected.sqrt() + m_epsilon));
     layer->setLastBias(V_dB);
     layer->setLastBias2(S_dB);
     layer->setBias(new_bias);

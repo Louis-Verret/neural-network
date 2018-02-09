@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <iostream>
-#include "Matrix.h"
+#include "MatrixCPU.h"
 
-void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y);
-void normalizeData(Matrix& x);
-void centralizeData(Matrix& x, double min_value = 0, double max_value = 0);
-void generateSinusData(Matrix& x, Matrix& d, int s);
-void oneHotEncoding(Matrix& y, int n_class);
+void readCSV(const char* file_name, bool header, MatrixCPU& x, MatrixCPU& y);
+void normalizeData(MatrixCPU& x);
+void centralizeData(MatrixCPU& x, double min_value = 0, double max_value = 0);
+void generateSinusData(MatrixCPU& x, MatrixCPU& d, int s);
+void oneHotEncoding(MatrixCPU& y, int n_class);
 
 #endif
