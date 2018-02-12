@@ -46,20 +46,20 @@ void NeuralNetwork::fit(MatrixCPU& x, MatrixCPU& y, int epoch, const int batch_s
         double metric = 0;
         std::cout << "\nEpoch: " << t+1 << "/" << epoch << std::endl;
         for (int j = 0; j<nb_batches; j++) {
+
+            /* The two essential methods for training: propagation and backpropagation */
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
+
             double batch_error = m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
             double batch_metric = 0;
             error += batch_error;
-            //std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
             if (m_metric != NULL) {
                 batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
                 metric += batch_metric;
-                //std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
             }
             float progress = (float)(j+1) / (float)nb_batches;
             pb.display(progress, batch_error, batch_metric);
-            //gradCheck(batches_x[j], batches_y[j], batch_size);
         }
         std::cout << "\nMean Error: " << error/batches_x.size() << std::endl;
         if (m_metric != NULL) {
@@ -127,74 +127,6 @@ void NeuralNetwork::addLayer(int neurons_number, char const* function_name, int 
     }
 }
 
-void NeuralNetwork::addDropout(double dropout_rate) {
-    m_layers.back()->setDropout(dropout_rate);
-}
-
-void NeuralNetwork::save(const char* file_name) {
-    std::ofstream file;
-    file.open(file_name);
-    if (file.is_open()) {
-        file << m_layers.size() << std::endl;
-        for (std::vector<Layer*>::iterator it = m_layers.begin(); it != m_layers.end(); ++it) {
-            if (it == m_layers.begin()) {
-                file << (*it)->getInputDim() << " " << (*it)->getNeuronsNumber() << std::endl;
-            }
-            else {
-                file << (*it)->getNeuronsNumber() << std::endl;
-            }
-            file << (*it)->getActivationFunction()->getName() << std::endl;
-            file << (*it)->getWeights();
-            file << (*it)->getBias() << std::endl;
-        }
-        file.close();
-    }
-
-    else std::cout << "Unable to open file " << file_name << std::endl;
-}
-
-void NeuralNetwork::load(const char* file_name) {
-    FILE * file;
-    file = fopen(file_name, "r");
-    int n_layers; int input_dim; int neurons_number;
-    float value;
-    char activation_function_as_char[100];
-    fscanf(file, "%d\n", &(n_layers));
-    //std::cout << n_layers << std::endl;
-    for (int l = 0; l < n_layers; l++) {
-        if (l == 0) {
-            fscanf(file, "%d %d\n", &(input_dim), &(neurons_number));
-            //std::cout << neurons_number << std::endl;
-        } else {
-            input_dim = neurons_number;
-            fscanf(file, "%d\n", &(neurons_number));
-        }
-        fscanf(file, "%s", activation_function_as_char);
-        //std::cout << activation_function_as_char << std::endl;
-        Matrix weights(neurons_number, input_dim);
-
-        for (int i = 0; i < neurons_number; i++) {
-            for (int j = 0; j < input_dim; j++) {
-                fscanf(file, "%f", &(value));
-                //weights(i, j) = value;
-            }
-        }
-        VectorGPU bias(neurons_number);
-        for (int j = 0; j < neurons_number; j++) {
-            fscanf(file, "%f", &(value));
-            //bias(j) = value;
-        }
-        if (l == 0) {
-            addLayer(neurons_number, activation_function_as_char, input_dim);
-        } else {
-            addLayer(neurons_number, activation_function_as_char);
-        }
-        getLayers().back()->setWeights(weights);
-        getLayers().back()->setBias(bias);
-    }
-    fclose(file);
-}
-
 void NeuralNetwork::propagate(Matrix& input) {
     m_a.clear();
     m_z.clear();
@@ -216,8 +148,6 @@ void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epo
     }
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
-    //layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
-    //layer->updateBias(delta_suiv, learning_rate, batch_size, momentum);
     m_optimizer->updateWeights(layer, m_a[L-1], delta_suiv, batch_size, epoch_num);
     m_optimizer->updateBias(layer, delta_suiv, batch_size, epoch_num);
 
@@ -225,8 +155,6 @@ void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epo
         Layer* layer = m_layers[l];
         Layer* layer_suiv = m_layers[l+1];
         Matrix delta_curr = (layer_suiv->getWeights().transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
-        //layer->updateWeights(m_a[l], delta_curr, learning_rate, batch_size, momentum);
-        //layer->updateBias(delta_curr, learning_rate, batch_size, momentum);
         m_optimizer->updateWeights(layer, m_a[l], delta_curr, batch_size, epoch_num);
         m_optimizer->updateBias(layer, delta_curr, batch_size, epoch_num);
         delta_suiv = delta_curr;

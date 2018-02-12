@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
             time_mean += omp_get_wtime() - start_time;
         }
 
-        printf("\n Matrix CPU multiplications in %lf seconds\n", time_mean/iter);
+        printf("\n Matrix CPU addition in %lf seconds\n", time_mean/iter);
 
 
         /** GPU **/
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
             m3 = m3 + m4;
             time_mean += omp_get_wtime() - start_time;
         }
-        printf("\n Matrix GPU multiplications in %lf seconds\n", time_mean/iter);
+        printf("\n Matrix GPU addition in %lf seconds\n", time_mean/iter);
 
         std::vector<double> mat_copy(m3.getPaddingN()*m3.getPaddingM());
         cl::copy(GPU::queue, m3.getBuffer(), mat_copy.begin(), mat_copy.end());

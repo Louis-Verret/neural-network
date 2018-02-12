@@ -4,6 +4,10 @@
 
 extern int DEVICE;
 
+/** Implementation of namespace GPU
+    This basically contains init methods for compiling kernels in kernels.cl
+**/
+
 namespace GPU
 {
         const cl::Context initContext() {

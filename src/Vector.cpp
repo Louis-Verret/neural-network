@@ -5,26 +5,22 @@
 #include <stdexcept>
 
 Vector::Vector() : m_n(0) {
-    //m_coefficients = new double[0];
     m_coefficients = std::vector<double>(0);
 }
 
 Vector::~Vector() {
-    //delete[] m_coefficients;
 }
 
 Vector::Vector(int n) :
         m_n(n)
 {
     m_coefficients = std::vector<double>(n);
-    //m_coefficients = new double[n];
 }
 
 Vector::Vector(int n, double val) :
         m_n(n)
 {
     m_coefficients = std::vector<double>(n);
-    //m_coefficients = new double[n];
     int i;
     #pragma omp parallel shared(n) private(i)
     {
@@ -34,12 +30,6 @@ Vector::Vector(int n, double val) :
         }
     }
 }
-
-// Vector::Vector(const Vector& vec) {
-//     int n = vec.getN();
-//     m_coefficients = new double[n];
-//     std::copy(vec.m_coefficients, vec.m_coefficients + n, m_coefficients);
-// }
 
 const double &Vector::operator()(int i) const {
     if (i < m_n)
@@ -52,17 +42,6 @@ double &Vector::operator()(int i) {
         return m_coefficients[i];
     throw std::logic_error("Invalid vector element");
 }
-
-// Vector& Vector::operator=(const Vector& vec) {
-//     int n = vec.getN();
-//     if (n != m_n) {
-//         delete[] m_coefficients;
-//         m_n = n;
-//         m_coefficients = new double[n];
-//     }
-//     std::copy(vec.m_coefficients, vec.m_coefficients + n, m_coefficients);
-//     return *this;
-// }
 
 Vector Vector::operator+(const Vector &v) const {
     if (v.getN() != m_n) {

@@ -456,8 +456,8 @@ std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
     std::vector<double> mat_copy(mat.getPaddingN()*mat.getPaddingM());
     cl::copy(GPU::queue, mat.getBuffer(), mat_copy.begin(), mat_copy.end());
-    for (int i = 0; i < mat.getN(); i++) {
-        for (int j = 0; j < mat.getM(); j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             out << mat_copy[j + mat.getPaddingM()*i] << " ";
         }
         out << std::endl;

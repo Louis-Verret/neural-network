@@ -7,6 +7,9 @@
 
 #include "Vector.h"
 
+/** Class that implements a Matrix container without using GPU computations
+    This class only serves as a tool for comparing results and execution times
+    with and without GPUs **/
 
 class MatrixCPU {
 public:
@@ -46,7 +49,6 @@ protected:
     int m_n;
     int m_m;
     double* m_coefficients;
-    //std::vector<double> m_coefficients;
 
 };
 

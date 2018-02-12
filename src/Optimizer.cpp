@@ -1,6 +1,8 @@
 #include "Optimizer.h"
 #include "Utils.h"
 
+/* Constructors / Destructors */
+
 Optimizer::Optimizer()
 {
 
@@ -23,6 +25,8 @@ SGD::~SGD()
 {
 
 }
+
+/* Update methods */
 
 void SGD::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int batch_size, int epoch_num) const {
     Matrix dW = (delta * a.transpose()) / batch_size;

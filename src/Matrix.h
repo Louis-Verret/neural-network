@@ -8,19 +8,28 @@
 #include "GPU.h"
 #include "VectorGPU.h"
 
+/** Class that implements a matrix container optimized
+    with GPU computations using OpenCL */
+
 class Matrix {
 public:
+
+    /** Constructors */
     Matrix();
     Matrix(int n, int m);
     ~Matrix();
 
+    /** Get Methods */
     int getN() const { return m_n; };
     int getM() const { return m_m; };
     int getPaddingN() const { return m_padding_n; };
     int getPaddingM() const { return m_padding_m; };
-    void setBuffer(cl::Buffer& buffer) {m_buffer = buffer;};
     cl::Buffer getBuffer() const { return m_buffer; };
-    //const double &operator()(cl::CommandQueue& queue, int i, int j) const;
+
+    /* Set Methods */
+    void setBuffer(cl::Buffer& buffer) {m_buffer = buffer;};
+
+    /* Matrix operators */
     Matrix operator*(const Matrix& mat) const;
     Matrix operator+(const Matrix& mat) const;
     Matrix operator-(const Matrix& mat) const;
@@ -29,16 +38,20 @@ public:
     VectorGPU operator*(const VectorGPU &vec) const;
     Matrix operator+(const double coeff) const;
     Matrix operator/(const double coeff) const;
-    Matrix hadamardProduct(const Matrix& mat) const;
+    Matrix hadamardProduct(const Matrix& mat) const; //element-wise multiplication
+
+    /* Mathematical methods */
     Matrix transpose() const;
     Matrix sqrt() const;
     Matrix log() const;
     double sumElem() const;
-    double computeMetric(const Matrix& y) const;
 
+    /* Init methods */
     void fillWithZeros();
     void fillRandomly();
 
+    /* Neural Net specific methods */
+    double computeMetric(const Matrix& y) const;
     Matrix computeLinearDev() const;
     Matrix computeSigmoidEval() const;
     Matrix computeSigmoidDev() const;
@@ -56,6 +69,7 @@ protected:
     cl::Buffer m_buffer;
 };
 
+/* Extern operators */
 std::ostream& operator << (std::ostream& out, const Matrix& mat);
 Matrix operator*(const double coeff, const Matrix& mat);
 Matrix operator-(const double coeff, const Matrix& mat);

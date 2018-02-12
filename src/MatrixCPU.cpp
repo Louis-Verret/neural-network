@@ -15,7 +15,6 @@ MatrixCPU::~MatrixCPU() {
 MatrixCPU::MatrixCPU(int n, int m) :
         m_n(n),
         m_m(m) {
-    //m_coefficients = std::vector<double>(n * m);
     m_coefficients = new double[n * m];
 }
 
@@ -84,15 +83,15 @@ MatrixCPU MatrixCPU::operator+(const Vector &vec) const {
 
     MatrixCPU result(m_n, m_m);
     int i, j;
-    // #pragma omp parallel shared(result) private(i, j)
-    // {
-    //     #pragma omp for collapse(2)
+    #pragma omp parallel shared(result) private(i, j)
+    {
+        #pragma omp for collapse(2)
         for (i = 0; i < m_n; i++) {
             for (j = 0; j < m_m; j++) {
                 result(i, j) = m_coefficients[i * m_m + j] + vec(i);
             }
         }
-    // }
+    }
     return result;
 }
 
@@ -360,7 +359,6 @@ MatrixCPU MatrixCPU::transpose() const { //cache aware
 }
 
 void MatrixCPU::resize(int new_n, int new_m) {
-    //m_coefficients = std::vector<double>(new_n * new_m);
     delete[] m_coefficients;
     m_coefficients = new double[new_n * new_m];
     m_n = new_n;
@@ -369,7 +367,6 @@ void MatrixCPU::resize(int new_n, int new_m) {
 
 std::ostream& operator << (std::ostream& out, const MatrixCPU& mat) {
     int n = mat.getN(); int m = mat.getM();
-    //out << "Size ("  << n << " * " << m << ")" << std::endl ;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             out << mat(i,j) << " ";

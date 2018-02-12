@@ -5,18 +5,25 @@
 #include <cstdlib>
 #include <ostream>
 
+/** Class that implements a Vector container without using GPU computations
+    This class only serves as a tool for comparing results and execution times
+    with and without GPUs **/
+
 class Vector {
 public:
+
+    /* Constructors / Destructor */
     Vector();
     Vector(int n);
     Vector(int n, double val);
-    //Vector(const Vector& vec);
     ~Vector();
 
+    /* Get Methods */
     int getN() const { return m_n; };
+
+    /* Operators */
     double &operator()(int i);
     const double &operator()(int i) const;
-
     Vector operator+(const Vector &v) const;
     Vector operator-(const Vector &v) const;
     Vector operator*(const Vector &v) const;
@@ -24,15 +31,15 @@ public:
     Vector operator+(const double coeff) const;
     Vector operator/(const double coeff) const;
 
-    //Vector& operator=(const Vector& mat);
-
+    /* Init methods */
     void fillRandomly();
     void fillWithZeros();
+
+    /* Mathematical method */
     Vector sqrt() const;
 
 protected:
     int m_n;
-    //double* m_coefficients;
     std::vector<double> m_coefficients;
 };
 

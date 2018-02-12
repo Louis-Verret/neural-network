@@ -172,7 +172,7 @@ std::ostream& operator << (std::ostream& out, const VectorGPU& vec) {
     int n = vec.getN();
     std::vector<double> vec_copy(vec.getPaddingN());
     cl::copy(GPU::queue, vec.getBuffer(), vec_copy.begin(), vec_copy.end());
-    for (int i = 0; i < vec.getPaddingN(); i++) {
+    for (int i = 0; i < n; i++) {
         out << vec_copy[i] << " ";
     }
     out << std::endl;
