@@ -15,7 +15,6 @@ Matrix::~Matrix() {
 Matrix::Matrix(int n, int m) :
         m_n(n),
         m_m(m) {
-    //m_coefficients = std::vector<double>(n * m);
     m_coefficients = new double[n * m];
 }
 
@@ -362,7 +361,6 @@ Matrix Matrix::transpose() const { //cache aware
 }
 
 void Matrix::resize(int new_n, int new_m) {
-    //m_coefficients = std::vector<double>(new_n * new_m);
     delete[] m_coefficients;
     m_coefficients = new double[new_n * new_m];
     m_n = new_n;
@@ -371,7 +369,6 @@ void Matrix::resize(int new_n, int new_m) {
 
 std::ostream& operator << (std::ostream& out, const Matrix& mat) {
     int n = mat.getN(); int m = mat.getM();
-    //out << "Size ("  << n << " * " << m << ")" << std::endl ;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             out << mat(i,j) << " ";

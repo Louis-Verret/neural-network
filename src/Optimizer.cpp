@@ -1,6 +1,7 @@
 #include "Optimizer.h"
 #include "Utils.h"
 
+/* Constructors / Destructors */
 Optimizer::Optimizer()
 {
 
@@ -24,6 +25,23 @@ SGD::~SGD()
 
 }
 
+Adam::Adam(const double learning_rate, const double beta_1, const double beta_2, const double epsilon, const double decay) :
+ m_learning_rate(learning_rate),
+ m_beta_1(beta_1),
+ m_beta_2(beta_2),
+ m_epsilon(epsilon),
+ m_decay(decay)
+{
+
+}
+
+Adam::~Adam()
+{
+
+}
+
+/* Update methods */
+
 void SGD::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int batch_size, int epoch_num) const {
     Matrix dW = (delta * a.transpose()) / batch_size;
     Matrix V_dW = dW + m_momentum * layer->getLastWeights();
@@ -39,21 +57,6 @@ void SGD::updateBias(Layer* layer, const Matrix& delta, int batch_size, int epoc
     Vector new_bias = layer->getBias() - (1 / (1 + m_decay * epoch_num)) * m_learning_rate * V_dB;
     layer->setLastBias(V_dB);
     layer->setBias(new_bias);
-}
-
-Adam::Adam(const double learning_rate, const double beta_1, const double beta_2, const double epsilon, const double decay) :
- m_learning_rate(learning_rate),
- m_beta_1(beta_1),
- m_beta_2(beta_2),
- m_epsilon(epsilon),
- m_decay(decay)
-{
-
-}
-
-Adam::~Adam()
-{
-
 }
 
 void Adam::updateWeights(Layer* layer, const Matrix& a, const Matrix& delta, int batch_size, int epoch_num) const {

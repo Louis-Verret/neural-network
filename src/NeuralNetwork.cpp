@@ -1,4 +1,5 @@
 #include "NeuralNetwork.h"
+#include "ProgressBar.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -39,24 +40,32 @@ void NeuralNetwork::fit(Matrix& x, Matrix& y, int epoch, const int batch_size) {
     std::vector<Matrix> batches_y;
     separateDataInBatches(x, y, batches_x, batches_y, batch_size);
     int nb_batches = batches_x.size();
-    for (int t = 0; t<epoch; t++) {
+
+    ProgressBar pb(30); //for displaying
+
+    for (int t = 0; t<epoch; t++) { //learning process
+
         double error = 0;
         double metric = 0;
+        std::cout << "\nEpoch: " << t+1 << "/" << epoch << std::endl;
         for (int j = 0; j<nb_batches; j++) {
+
+            /* The two essential steps for training: propagation and backpropagation */
             propagate(batches_x[j]);
             backpropagate(batches_y[j], batch_size, t+1);
+
             double batch_error = m_C->computeError(m_a.back(), batches_y[j]).sumElem()/batch_size;
+
+            double batch_metric = 0;
             error += batch_error;
-            std::cout << "Epoch: " << t+1 << "/" << epoch << " Minibatch " << j+1 << "/" << nb_batches << std::endl;
             if (m_metric != NULL) {
-                double batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
+                batch_metric = m_metric->computeMetric(m_a.back(), batches_y[j]);
                 metric += batch_metric;
-                std::cout << " Error: " << batch_error << " Accuracy: " << batch_metric << std::endl;
             }
-            //gradCheck(batches_x[j], batches_y[j], batch_size);
+            float progress = (float)(j+1) / (float)nb_batches;
+            pb.display(progress, batch_error, batch_metric);
         }
-        std::cout << "Epoch: " << t+1 << "/" << epoch << std::endl;
-        std::cout << " Mean Error: " << error/batches_x.size() << std::endl;
+        std::cout << " \nMean Error: " << error/batches_x.size() << std::endl;
         if (m_metric != NULL) {
             std::cout << "Mean Metric: " << metric/batches_x.size() << std::endl;
         }
@@ -148,17 +157,14 @@ void NeuralNetwork::load(const char* file_name) {
     float value;
     char activation_function_as_char[100];
     fscanf(file, "%d\n", &(n_layers));
-    //std::cout << n_layers << std::endl;
     for (int l = 0; l < n_layers; l++) {
         if (l == 0) {
             fscanf(file, "%d %d\n", &(input_dim), &(neurons_number));
-            //std::cout << neurons_number << std::endl;
         } else {
             input_dim = neurons_number;
             fscanf(file, "%d\n", &(neurons_number));
         }
         fscanf(file, "%s", activation_function_as_char);
-        //std::cout << activation_function_as_char << std::endl;
         Matrix weights(neurons_number, input_dim);
 
         for (int i = 0; i < neurons_number; i++) {
@@ -204,8 +210,6 @@ void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epo
     }
     int L = m_layers.size();
     Layer* layer = m_layers[L-1];
-    //layer->updateWeights(m_a[L-1], delta_suiv, learning_rate, batch_size, momentum);
-    //layer->updateBias(delta_suiv, learning_rate, batch_size, momentum);
     m_optimizer->updateWeights(layer, m_a[L-1], delta_suiv, batch_size, epoch_num);
     m_optimizer->updateBias(layer, delta_suiv, batch_size, epoch_num);
 
@@ -213,8 +217,6 @@ void NeuralNetwork::backpropagate(const Matrix& y, const int batch_size, int epo
         Layer* layer = m_layers[l];
         Layer* layer_suiv = m_layers[l+1];
         Matrix delta_curr = (layer_suiv->getWeights().transpose() * delta_suiv).hadamardProduct(layer->getActivationFunction()->evalDev(m_z[l]));
-        //layer->updateWeights(m_a[l], delta_curr, learning_rate, batch_size, momentum);
-        //layer->updateBias(delta_curr, learning_rate, batch_size, momentum);
         m_optimizer->updateWeights(layer, m_a[l], delta_curr, batch_size, epoch_num);
         m_optimizer->updateBias(layer, delta_curr, batch_size, epoch_num);
         delta_suiv = delta_curr;
