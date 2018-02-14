@@ -1,13 +1,14 @@
 # Neural Networks C++ Library
 
 This repository constitutes a high level and optimized C++ library allowing the construction of any kind of neural network architecture. The library uses OpenMP for parallel computing.  
-A sample executable handling the MNIST-Handwritten Digit Recognition Problem is prodived
+A sample executable handling the MNIST-Handwritten Digit Recognition Problem is prodived.
 
 ## MNIST
 
 ### Download the data
 
 ```
+mkdir data
 cd data  
 wget https://pjreddie.com/media/files/mnist_train.csv  
 wget https://pjreddie.com/media/files/mnist_test.csv
