@@ -1,20 +1,19 @@
-# Neural networks C++ library
+# Neural Networks C++ Library
 
-This repository constitutes a high level and optimized library using OpenMP allowing an user to construct any kind of neural network architecture.   
-Two executables are provided : mainSinus and mainMNIST
+This repository constitutes a high level and optimized C++ library allowing the construction of any kind of neural network architecture. The library uses OpenMP for parallel computing.  
+A sample executable handling the MNIST-Handwritten Digit Recognition Problem is prodived
 
 ## MNIST
 
-This executable constructs a neural networks for hand written digits recognition. The architecture of the network is detailed in the report.
+### Download the data
 
-### To download the data
 ```
 cd data  
 wget https://pjreddie.com/media/files/mnist_train.csv  
 wget https://pjreddie.com/media/files/mnist_test.csv
 ```
 
-### Running the executable (after downloading the data)
+### Run the executable (after downloading the data)
 ```
 cd ..  
 mkdir build  
@@ -24,16 +23,8 @@ make
 ./mnist
 ```
 
-## Sinus
-This executable constructs a neural networks for sinus function approximation. The data are generated thanks to a build-in function.
-
-### Running the executable
-```
-./sinus
-```
-
 ## Construct your own model
-The library allows an user to construct a neural network architecture. For that, write a C++ main and follow the steps:  
+The library allows a programming user to construct a neural network architecture. For that, write a C++ main and follow the steps:  
 
 1 - Define the optimizer and init the network
 ```
