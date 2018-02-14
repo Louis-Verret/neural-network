@@ -2,9 +2,13 @@
 
 #include <fstream>
 #include <cmath>
+#include <stdexcept>
 
 void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
     std::ifstream file(file_name);
+    if (!file.is_open()) {
+        throw std::logic_error("File not found in reading CSV");
+    }
     std::string value;
     std::vector<std::vector<double> > read_x;
     std::vector<std::vector<double> > read_y;
@@ -17,7 +21,6 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
         std::vector<double> read_yi;
         for (unsigned int end = 0; end<value.length(); end++) {
             if (value[end] == ',' && beg != -1) {
-                //std::cout << value.substr(beg+1, end-beg-1) << std::endl;
                 double value_double_x = std::stod(value.substr(beg+1, end-beg-1));
                 read_xi.push_back(value_double_x);
                 beg = end;
@@ -26,7 +29,6 @@ void readCSV(const char* file_name, bool header, Matrix& x, Matrix& y) {
                 read_yi.push_back(value_double_y);
                 beg = end;
             } else if (end == value.length()-1) {
-                //std::cout << value.substr(beg+1, end-beg) << std::endl;
                 double value_double_x = std::stod(value.substr(beg+1, end-beg));
                 read_xi.push_back(value_double_x);
                 beg = end;

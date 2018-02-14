@@ -5,6 +5,10 @@
 #include <cmath>
 #include "Matrix.h"
 
+/** Virtual class used for contructing different activation functions for training a neural network.
+    This class provides two virtual methods: one for evaluating the function and
+    another for its derivative
+**/
 class ActivationFunction
 {
 public:
@@ -22,6 +26,8 @@ protected:
 };
 
 
+/** Class that implements the linear activation function
+**/
 class LinearFunction : public  ActivationFunction
 {
 public:
@@ -33,6 +39,9 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+
+/** Class that implements the sigmoid activation function
+**/
 class SigmoidFunction : public  ActivationFunction
 {
 public:
@@ -44,6 +53,9 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+
+/** Class that implements the tanh activation function
+**/
 class TanhFunction : public  ActivationFunction
 {
 public:
@@ -55,6 +67,9 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+
+/** Class that implements the Rectifier Linear Unit (ReLU) activation function
+**/
 class ReLUFunction : public  ActivationFunction
 {
 public:
@@ -66,6 +81,9 @@ public:
     virtual Matrix evalDev(const Matrix& z) const;
 };
 
+
+/** Class that implements the softmax activation function
+**/
 class SoftmaxFunction : public  ActivationFunction
 {
 public:

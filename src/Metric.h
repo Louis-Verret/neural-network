@@ -3,6 +3,9 @@
 
 #include "Matrix.h"
 
+/** Virtual class used for contructing different metric functions for evaluating a neural network.
+    This class provides a virtual method for computing metric
+**/
 class Metric
 {
 public:
@@ -13,6 +16,8 @@ public:
     virtual double computeMetric(const Matrix& a, const Matrix& y) const = 0;
 };
 
+
+/** Class that implements the categorical accuracy metric function */
 class CategoricalAccuracy : public Metric
 {
 public:

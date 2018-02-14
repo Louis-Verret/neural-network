@@ -3,6 +3,10 @@
 
 #include "Layer.h"
 
+/** Virtual class used for contructing different optimizers for training a neural network.
+    This class provides two virtual methods for updating the weight matrix and the bias
+    of the Layer in argument
+**/
 class Optimizer
 {
 public:
@@ -13,6 +17,8 @@ public:
     virtual void updateBias(Layer* layer, const Matrix& delta, int batch_size, int epoch_num) const = 0;
 };
 
+
+/** Class that implements the stochastic gradient descent (SGD) optimizer */
 class SGD : public  Optimizer
 {
 public:
@@ -28,6 +34,8 @@ private:
     const double m_decay;
 };
 
+
+/** Class that implements the Adam optimizer */
 class Adam : public  Optimizer
 {
 public:

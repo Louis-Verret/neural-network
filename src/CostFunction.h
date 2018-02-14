@@ -3,6 +3,10 @@
 
 #include "Matrix.h"
 
+/** Virtual class used for contructing different cost functions for training a neural network.
+    This class provides two virtual methods for computing the error and the
+    derivative error
+**/
 class CostFunction
 {
 public:
@@ -19,6 +23,9 @@ protected:
     const char* m_name;
 };
 
+
+/** Class that implements the mean squared error (MSE) cost function
+**/
 class MSE : public CostFunction
 {
 public:
@@ -30,6 +37,9 @@ public:
     virtual Matrix computeErrorGradient(const Matrix& a, const Matrix& y) const;
 };
 
+
+/** Class that implements the cross entropy cost function
+**/
 class CrossEntropy : public CostFunction
 {
 public:
